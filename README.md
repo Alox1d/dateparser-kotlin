@@ -11,6 +11,14 @@ Offline English and Russian natural-language date/time parser for Kotlin Multipl
 
 **Version:** 0.1.3 | [Maven Central](https://central.sonatype.com/artifact/io.github.alox1d/dateparser-kotlin/0.1.3) | [Release notes](CHANGELOG.md).
 
+## Android demo screenshots
+
+See the reminder input, editable preview, and manual review of ambiguous time. These are real screenshots from an isolated Android API 35 emulator.
+
+| Parsed reminder | Edited and saved | Ambiguous time: manual review |
+| --- | --- | --- |
+| ![Natural-language reminder parsed as Buy milk at 19:00](website/assets/reminder-preview.png) | ![Edited Buy milk for family saved for October 19 at 20:00](website/assets/reminder-saved.png) | ![Tomorow at 7 requires a manually chosen date and time](website/assets/reminder-needs-review.png) |
+
 ## Installation
 
 Add `mavenCentral()` and the dependency to your shared module:
@@ -161,12 +169,6 @@ A range end with no date inherits the start's calendar date. An earlier end cloc
 The checked-in `app` module contains an interactive Compose reminder prototype. Run `./gradlew :app:installDebug` with an Android device or emulator, then open **DateParser**. Enter `Buy milk tomorrow at 7pm`, preview the extracted title and date, correct either field using the title editor/date/time pickers, and explicitly add the reminder to a session-only list. No notifications, account, or database are involved.
 
 For ambiguous wording such as `Remind me tomorow at 7`, `Buy milk tomorrow 7, please`, or an invalid bare hour such as `tomorrow at 25`, the library rejects the unresolved time instead of quietly scheduling at the reference hour. Supply `7am`, `7pm`, or `19:00`, or select a date and time manually in the demo. A date-only expression such as `tomorrow` still inherits the reference time by design. The preview is always for review; a rule score is not a probability.
-
-**Actual screenshots from an isolated Android API 35 emulator**, using the checked-in Compose demo:
-
-| Parsed reminder | Edited and saved | Ambiguous time: manual review |
-| --- | --- | --- |
-| ![Natural-language reminder parsed as Buy milk at 19:00](website/assets/reminder-preview.png) | ![Edited Buy milk for family saved for October 19 at 20:00](website/assets/reminder-saved.png) | ![Tomorow at 7 requires a manually chosen date and time](website/assets/reminder-needs-review.png) |
 
 The Android screen compiles the **same** `integration/consumer/src/commonMain/kotlin/ReminderDraft.kt` source as the standalone KMP consumer. UI edits and the in-memory list remain Android-only. A parsed range is not silently shortened to a single instant; the screen asks for a single time or manual selection. Manually chosen local times are validated for DST gaps and overlaps before saving.
 
