@@ -44,8 +44,10 @@ internal object EnglishGrammar {
         // An unresolved bare hour must not silently inherit the reference clock.
         // Only explicit AM/PM or minutes disambiguate these otherwise partial matches.
         val ambiguousAtHour = Regex("\\bat\\s+\\d{1,3}\\b(?!\\s*(?:[:.]\\d|[ap]\\.?m\\.?))", ignoreCase)
+        // Match the number after the calendar word regardless of the next character.
+        // Unicode symbol categories differ between JVM and Kotlin/Native for emoji.
         val trailingDateHour = Regex(
-            "\\b(?:today|tomorrow|tomorow|yesterday)\\s+\\d{1,3}\\b(?!\\s*(?:[:.]\\d|[ap]\\.?m\\.?))(?=\\s*(?:$|[,;!?]|\\p{So}))",
+            "\\b(?:today|tomorrow|tomorow|yesterday)\\s+\\d{1,3}\\b(?!\\s*(?:[:.]\\d|[ap]\\.?m\\.?))",
             ignoreCase
         )
         if (ambiguousAtHour.containsMatchIn(text) || trailingDateHour.containsMatchIn(text)) return REJECTED
