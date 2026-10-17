@@ -1,5 +1,9 @@
 # DateParser Kotlin
 
+*Локальное распознавание дат и времени из текста для Kotlin Multiplatform.*
+
+Русский и английский · Android, JVM и iOS.
+
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.alox1d/dateparser-kotlin?strategy=releaseProperty&style=for-the-badge&label=Maven%20Central&color=7928CA)](https://central.sonatype.com/artifact/io.github.alox1d/dateparser-kotlin)
 [![CI main](https://img.shields.io/github/actions/workflow/status/Alox1d/dateparser-kotlin/ci.yml?branch=main&event=push&style=for-the-badge&label=CI%20main&color=7928CA)](https://github.com/Alox1d/dateparser-kotlin/actions/workflows/ci.yml?query=branch%3Amain%20event%3Apush)
 [![MIT license](https://img.shields.io/github/license/Alox1d/dateparser-kotlin?style=for-the-badge&label=License&color=7928CA)](https://github.com/Alox1d/dateparser-kotlin/blob/main/LICENSE)
@@ -7,7 +11,7 @@
 
 [English](README.md) | [Русский](README.ru.md) | [Документация](https://alox1d.github.io/dateparser-kotlin/)
 
-Парсер дат и времени из текста на русском и английском для Kotlin Multiplatform. Извлекает даты, время, диапазоны и интервалы повторения из напоминаний. Работает локально на Android, JVM и iOS, без аккаунта, API-ключа и сетевого сервиса.
+Извлекает даты, время, диапазоны и интервалы повторения из напоминаний. Работает без аккаунта, API-ключа и сетевого сервиса.
 
 **Версия:** 0.1.3 | [Maven Central](https://central.sonatype.com/artifact/io.github.alox1d/dateparser-kotlin/0.1.3) | [Изменения](CHANGELOG.md).
 

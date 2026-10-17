@@ -1,5 +1,9 @@
 # DateParser Kotlin
 
+*Offline natural-language date and time parsing for Kotlin Multiplatform.*
+
+English and Russian · Android, JVM and iOS.
+
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.alox1d/dateparser-kotlin?strategy=releaseProperty&style=for-the-badge&label=Maven%20Central&color=7928CA)](https://central.sonatype.com/artifact/io.github.alox1d/dateparser-kotlin)
 [![CI main](https://img.shields.io/github/actions/workflow/status/Alox1d/dateparser-kotlin/ci.yml?branch=main&event=push&style=for-the-badge&label=CI%20main&color=7928CA)](https://github.com/Alox1d/dateparser-kotlin/actions/workflows/ci.yml?query=branch%3Amain%20event%3Apush)
 [![MIT license](https://img.shields.io/github/license/Alox1d/dateparser-kotlin?style=for-the-badge&label=License&color=7928CA)](https://github.com/Alox1d/dateparser-kotlin/blob/main/LICENSE)
@@ -7,7 +11,7 @@
 
 [English](README.md) | [Russian](README.ru.md) | [Documentation](https://alox1d.github.io/dateparser-kotlin/)
 
-Offline English and Russian natural-language date/time parser for Kotlin Multiplatform. Extract dates, times, ranges and recurrence periods from reminder text on Android, JVM and iOS, without an account, API key or network service.
+Extract dates, times, ranges and recurrence periods from reminder text, without an account, API key or network service.
 
 **Version:** 0.1.3 | [Maven Central](https://central.sonatype.com/artifact/io.github.alox1d/dateparser-kotlin/0.1.3) | [Release notes](CHANGELOG.md).
 
