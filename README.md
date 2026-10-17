@@ -9,7 +9,7 @@
 
 Offline English and Russian natural-language date/time parser for Kotlin Multiplatform. Extract dates, times, ranges and recurrence periods from reminder text on Android, JVM and iOS, without an account, API key or network service.
 
-**Version:** 0.1.2 | [Maven Central](https://central.sonatype.com/artifact/io.github.alox1d/dateparser-kotlin/0.1.2) | [Release notes](CHANGELOG.md).
+**Version:** 0.1.3 | [Maven Central](https://central.sonatype.com/artifact/io.github.alox1d/dateparser-kotlin/0.1.3) | [Release notes](CHANGELOG.md).
 
 ## Installation
 
@@ -19,7 +19,7 @@ Add `mavenCentral()` and the dependency to your shared module:
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("io.github.alox1d:dateparser-kotlin:0.1.2")
+            implementation("io.github.alox1d:dateparser-kotlin:0.1.3")
         }
     }
 }
@@ -29,7 +29,7 @@ The same coordinates work in a Kotlin/JVM or Android project. Gradle selects the
 
 ## Runnable KMP demo
 
-[Try the shared reminder demo](integration/consumer/README.md) or follow the [English KMP walkthrough](https://alox1d.github.io/dateparser-kotlin/en/kmp-reminder-demo/). The example resolves **0.1.2 from Maven Central**, keeps the preview in `commonMain`, and checks JVM, Android and iOS consumers.
+[Try the shared reminder demo](integration/consumer/README.md) or follow the [English KMP walkthrough](https://alox1d.github.io/dateparser-kotlin/en/kmp-reminder-demo/). The example resolves **0.1.3 from Maven Central**, keeps the preview in `commonMain`, and checks JVM, Android and iOS consumers.
 
 ```sh
 ./gradlew -p integration/consumer runDemo -PcentralOnly=true --console=plain
@@ -55,6 +55,10 @@ val instant = matches.single().instant // 2024-02-28T15:15:00Z
 ```
 
 The Russian phrase `купить через 5 часов` produces the same instant. No Android `Context` or initialization is required. Passing reference time and timezone makes parsing reproducible. If omitted, the injected `Clock` (system clock by default) is read once and the system timezone is used. Results have second precision except elapsed offsets, which preserve reference subsecond precision.
+
+## New in 0.1.3: safe reminder previews
+
+Bare or invalid hours such as `tomorrow at 7`, `tomorrow 7, please`, or `tomorrow at 25` are rejected instead of silently inheriting the reference time. Use explicit `7pm` or `19:00`, or allow the user to choose a time manually. This change also covers emoji-adjacent input across JVM and iOS. An Android Compose demo allows editing the parsed title/date/time and confirming reminders. See the [real emulator screenshots](#android-compose-reminder-demo) below.
 
 ## New in 0.1.2: first weekday of next month
 

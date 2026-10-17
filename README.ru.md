@@ -9,7 +9,7 @@
 
 Парсер дат и времени из текста на русском и английском для Kotlin Multiplatform. Извлекает даты, время, диапазоны и интервалы повторения из напоминаний. Работает локально на Android, JVM и iOS, без аккаунта, API-ключа и сетевого сервиса.
 
-**Версия:** 0.1.2 | [Maven Central](https://central.sonatype.com/artifact/io.github.alox1d/dateparser-kotlin/0.1.2) | [Изменения](CHANGELOG.md).
+**Версия:** 0.1.3 | [Maven Central](https://central.sonatype.com/artifact/io.github.alox1d/dateparser-kotlin/0.1.3) | [Изменения](CHANGELOG.md).
 
 ## Подключение
 
@@ -19,7 +19,7 @@
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("io.github.alox1d:dateparser-kotlin:0.1.2")
+            implementation("io.github.alox1d:dateparser-kotlin:0.1.3")
         }
     }
 }
@@ -29,7 +29,7 @@ kotlin {
 
 ## Запускаемый пример KMP
 
-[Демо общего кода](integration/consumer/README.md) и [практическая статья на английском](https://alox1d.github.io/dateparser-kotlin/en/kmp-reminder-demo/) используют опубликованную 0.1.2 из Maven Central. Код предпросмотра напоминания находится в `commonMain`; он проверяется на JVM, Android и iOS.
+[Демо общего кода](integration/consumer/README.md) и [практическая статья на английском](https://alox1d.github.io/dateparser-kotlin/en/kmp-reminder-demo/) используют опубликованную 0.1.3 из Maven Central. Код предпросмотра напоминания находится в `commonMain`; он проверяется на JVM, Android и iOS.
 
 ```sh
 ./gradlew -p integration/consumer runDemo -PcentralOnly=true --console=plain
@@ -55,6 +55,10 @@ val instant = matches.single().instant // 2024-02-28T15:15:00Z
 ```
 
 `buy in 5 hours` даёт тот же результат. Android `Context` и предварительная инициализация не нужны. Явные время отсчёта и часовой пояс обеспечивают воспроизводимость. Если их не указать, внедрённый `Clock` (по умолчанию системный) читается один раз, используется системный часовой пояс. Точность результата - секунды; смещения в часах, минутах и секундах сохраняют долю секунды исходного времени.
+
+## Новое в 0.1.3: безопасное распознавание времени
+
+Фразы с неоднозначным или некорректным часом (`tomorrow at 7`, `tomorrow 7, please`, `tomorrow at 25`) теперь отклоняются, а не возвращают дату со временем из reference. Укажи `7pm` или `19:00`, либо выбери время вручную. Проверены варианты с эмодзи на JVM и iOS. Android Compose demo позволяет исправить название и дату/время перед подтверждением напоминания; ниже есть реальные скриншоты эмулятора.
 
 ## Новое в 0.1.2: первый день недели следующего месяца
 

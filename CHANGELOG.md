@@ -1,10 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.1.3
 
-- Reject unresolved bare hours in expressions such as `tomorrow at 7`, `Buy milk tomorrow 7`, and `2026-10-18 at 7`, `tomorrow at 25` and `tomorrow 7, please` rather than silently inheriting the reference clock; explicit `7pm` and `19:00` still work.
+- Reject unresolved bare hours in expressions such as `tomorrow at 7`, `Buy milk tomorrow 7`, `2026-10-18 at 7`, `tomorrow at 25`, and `tomorrow 7, please` instead of silently inheriting the reference clock; explicit `7pm` and `19:00` still work.
+- Keep emoji-adjacent unsupported hours consistent between JVM and Kotlin/Native.
 - Add a runnable Compose reminder editor and confirmation list, using the same shared KMP reminder draft as the independent consumer.
-- Add verified Android emulator screenshots, document partial matches and DST behavior in English/Russian, and clarify Android API 24 support requirements. No published library version is changed by this PR.
+- Add verified Android emulator screenshots, document partial matches and DST behavior in English/Russian, and clarify Android API 24 support requirements. The public API and Android API 26 minimum remain unchanged.
 
 ## 0.1.2
 
