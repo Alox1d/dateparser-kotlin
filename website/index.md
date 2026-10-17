@@ -1,8 +1,16 @@
+---
+title: DateParser Kotlin - Natural-language date and time parsing for KMP
+---
+
 # DateParser Kotlin
 
-Offline English and Russian natural-language date/time parser for Kotlin Multiplatform.
+*Offline natural-language date and time parsing for Kotlin Multiplatform.*
 
-Парсер дат и времени из текста на русском и английском для Kotlin Multiplatform.
+English and Russian · Android, JVM and iOS.
+
+*Локальное распознавание дат и времени из текста для Kotlin Multiplatform.*
+
+Русский и английский · Android, JVM и iOS.
 
 - [English documentation](en/index.md)
 - [Документация на русском](ru/index.md)
