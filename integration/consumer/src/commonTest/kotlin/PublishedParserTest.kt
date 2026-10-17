@@ -29,6 +29,21 @@ class PublishedParserTest {
         assertEquals(LocalDateTime(2024, 3, 4, 10, 15), named.targetDate)
         assertEquals("Call May", named.remainingText)
     }
+    @Test fun rejectsAmbiguousReminderHoursInPublishedArtifacts() {
+        for (text in listOf(
+            "Remind me tomorow at 7",
+            "Buy milk tomorrow at 25",
+            "Buy milk tomorrow 7, please",
+            "🛒 Buy milk tomorrow 7 🥛"
+        )) {
+            assertTrue(parse(text).isEmpty(), text)
+        }
+        assertEquals(
+            Instant.parse("2024-02-29T19:00:00Z"),
+            parse("Buy milk tomorrow at 7pm").single().instant
+        )
+    }
+
     @Test fun explicitUsAndEuropeanNumericOrder() {
         assertTrue(parse("03/04/2026").isEmpty())
         assertEquals(LocalDate(2026, 3, 4), parser.parse("03/04/2026", DateOrder.MDY, reference, TimeZone.UTC).single().targetDate.date)
