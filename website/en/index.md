@@ -14,19 +14,21 @@ English and Russian · Android, JVM and iOS.
 [![MIT license](https://img.shields.io/github/license/Alox1d/dateparser-kotlin?style=for-the-badge&label=License&color=7928CA)](https://github.com/Alox1d/dateparser-kotlin/blob/main/LICENSE)
 [![Featured on DevShelf](https://img.shields.io/badge/Featured%20on-DevShelf-7928CA?style=for-the-badge&logo=googlechrome&logoColor=white)](https://devshelf.ritualdev.in/tools/dateparser-kotlin.html)
 
-[English](../en/index.md) | [Russian](../ru/index.md) | [Documentation](https://alox1d.github.io/dateparser-kotlin/)
+[English](../en/index.md) | [Russian](../ru/index.md) | [Documentation](https://alox1d.github.io/dateparser-kotlin/en/)
 
 Extract dates, times, ranges and recurrence periods from reminder text, without an account, API key or network service.
 
-**Version:** 0.1.3 | [Maven Central](https://central.sonatype.com/artifact/io.github.alox1d/dateparser-kotlin/0.1.3) | [Release notes](https://github.com/Alox1d/dateparser-kotlin/blob/main/CHANGELOG.md).
+[Latest release](https://github.com/Alox1d/dateparser-kotlin/releases/latest) · [Release notes](https://github.com/Alox1d/dateparser-kotlin/blob/main/CHANGELOG.md) · [Kotlin Multiplatform libraries catalog](https://klibs.io/project/Alox1d/dateparser-kotlin)
 
-## Android demo screenshots
+**`Buy milk tomorrow at 7pm` → `Buy milk` + tomorrow, 19:00 in your chosen timezone.**
 
-See the reminder input, editable preview, and manual review of ambiguous time. These are real screenshots from an isolated Android API 35 emulator.
+## See it in action
+
+Type a reminder, review the extracted title and time, then confirm. Real screenshots of the Android Compose demo on API 35:
 
 | Parsed reminder | Edited and saved | Ambiguous time: manual review |
 | --- | --- | --- |
-| ![Natural-language reminder parsed as Buy milk at 19:00](../assets/reminder-preview.png) | ![Edited Buy milk for family saved for October 19 at 20:00](../assets/reminder-saved.png) | ![Tomorow at 7 requires a manually chosen date and time](../assets/reminder-needs-review.png) |
+| ![Natural-language reminder parsed as Buy milk at 19:00](../assets/reminder-preview.png) | ![Confirmed reminder in the session-only list](../assets/reminder-saved.png) | ![Ambiguous time requires clarification before saving](../assets/reminder-needs-review.png) |
 
 ## Installation
 
@@ -43,16 +45,6 @@ kotlin {
 ```
 
 The same coordinates work in a Kotlin/JVM or Android project. Gradle selects the platform artifact automatically.
-
-## Runnable KMP demo
-
-[Try the shared reminder demo](https://github.com/Alox1d/dateparser-kotlin/blob/main/integration/consumer/README.md) or follow the [English KMP walkthrough](https://alox1d.github.io/dateparser-kotlin/en/kmp-reminder-demo/). The example resolves **0.1.3 from Maven Central**, keeps the preview in `commonMain`, and checks JVM, Android and iOS consumers.
-
-```sh
-./gradlew -p integration/consumer runDemo -PcentralOnly=true --console=plain
-```
-
-It shows US/European date order, timezones and a reminder range with a fixed reference. You can also provide your own phrase. Building this checked-in example requires JDK 17-21 and Android SDK 35; see the demo README for native checks.
 
 ## Usage
 
@@ -73,19 +65,15 @@ val instant = matches.single().instant // 2024-02-28T15:15:00Z
 
 The Russian phrase `купить через 5 часов` produces the same instant. No Android `Context` or initialization is required. Passing reference time and timezone makes parsing reproducible. If omitted, the injected `Clock` (system clock by default) is read once and the system timezone is used. Results have second precision except elapsed offsets, which preserve reference subsecond precision.
 
-## New in 0.1.3: safe reminder previews
+## Runnable KMP demo
 
-Bare or invalid hours such as `tomorrow at 7`, `tomorrow 7, please`, or `tomorrow at 25` are rejected instead of silently inheriting the reference time. Use explicit `7pm` or `19:00`, or allow the user to choose a time manually. This change also covers emoji-adjacent input across JVM and iOS. An Android Compose demo allows editing the parsed title/date/time and confirming reminders. See the [real emulator screenshots](#android-compose-reminder-demo) below.
+[Try the shared reminder demo](https://github.com/Alox1d/dateparser-kotlin/blob/main/integration/consumer/README.md) or follow the [English KMP walkthrough](https://alox1d.github.io/dateparser-kotlin/en/kmp-reminder-demo/). The example resolves **0.1.3 from Maven Central**, keeps the preview in `commonMain`, and checks JVM, Android and iOS consumers.
 
-## New in 0.1.2: first weekday of next month
+```sh
+./gradlew -p integration/consumer runDemo -PcentralOnly=true --console=plain
+```
 
-`next Friday` has been supported since 0.1.1: it means the nearest Friday, skipping today when the reference is Friday.
-
-Version 0.1.2 additionally recognizes `the first Monday of next month` and the corresponding form for any full weekday name (optional `the`; `first` or `1st`; case-insensitive).
-
-The rule starts at day 1 of the next calendar month in the supplied timezone and selects the first requested weekday. For `2024-02-28T10:15:00Z` in UTC, `Pay rent on the first Monday of next month` resolves to `2024-03-04T10:15:00Z` with title `Pay rent`. An explicit `at 5PM` uses `17:00:00`; otherwise the reference clock is retained.
-
-This is a one-off date, not an ordinal recurrence rule. The recognized unsupported forms (`second` through `fifth`, `last`, and numeric ordinals other than `1st`) and `every/each first ... of next month` are rejected rather than reduced to a partial weekday/month match. Other English ordinal wording is outside this addition. New grammar is added as explicit, documented rules with regression tests; arbitrary context-dependent prose is not inferred.
+It shows US/European date order, timezones and a reminder range with a fixed reference. You can also provide your own phrase. Building this checked-in example requires JDK 17-21 and Android SDK 35; see the demo README for native checks.
 
 ## English dates for the US and Europe
 
@@ -118,6 +106,16 @@ val eu = parser.parse("03/04/2026", DateOrder.DMY, reference, TimeZone.UTC)
 Without `DateOrder`, distinct ambiguous slash dates return no matches. Unambiguous slash dates and ISO dates are accepted automatically. `DateOrder.YMD` supports year/month/day slash dates. Dot dates retain the existing day/month/year convention, regardless of the selected slash order.
 
 Russian examples include `завтра`, `через 5 часов`, `29.02.2024`, `завтра с 17:30 до 20:00`, `каждый месяц` and `каждые 2 дня`. English `in 5 hours` and Russian `через 5 часов` resolve to the same instant.
+
+### Weekdays and the first weekday of next month
+
+`next Friday` means the nearest Friday, skipping today when the reference is Friday.
+
+The parser also recognizes `the first Monday of next month` and the corresponding form for any full weekday name (optional `the`; `first` or `1st`; case-insensitive).
+
+The rule starts at day 1 of the next calendar month in the supplied timezone and selects the first requested weekday. For `2024-02-28T10:15:00Z` in UTC, `Pay rent on the first Monday of next month` resolves to `2024-03-04T10:15:00Z` with title `Pay rent`. An explicit `at 5PM` uses `17:00:00`; otherwise the reference clock is retained.
+
+This is a one-off date, not an ordinal recurrence rule. The recognized unsupported forms (`second` through `fifth`, `last`, and numeric ordinals other than `1st`) and `every/each first ... of next month` are rejected rather than reduced to a partial weekday/month match. Other English ordinal wording is outside the supported grammar. New grammar is added as explicit, documented rules with regression tests; arbitrary context-dependent prose is not inferred.
 
 ## Result and options
 
@@ -166,6 +164,8 @@ Use `io.github.alox1d.dateparser.DateParser` from shared code. The deprecated An
 
 ## Limits
 
+Bare or invalid hours such as `tomorrow at 7`, `tomorrow 7, please` and `tomorrow at 25` return no matches. Use `7pm` or `19:00`, or ask the user to choose a time. A date-only phrase such as `tomorrow` still inherits the reference clock.
+
 This is a rule-based parser with verified English and Russian forms; arbitrary prose can require additional rules. Missing date/time fields inherit the reference, except explicit English AM/PM clocks: `5PM` means `17:00:00`, and `5:30PM` means `17:30:00`. A bare clock is not automatically moved into the future. The inherited hour-24 rule normalizes `24:30` to next-day `00:30`. Weekdays mean the nearest occurrence, including today; `next Friday` skips a current Friday.
 
 Relative hours/minutes/seconds are elapsed time; relative days/months/years use calendar arithmetic in the selected timezone, including month-end clamping. `next week/month/year` means a one-unit calendar offset from the reference. Recurrence must be positive and describes an interval, rather than a complete schedule.
@@ -175,11 +175,13 @@ A range end with no date inherits the start's calendar date. An earlier end cloc
 
 ## Android Compose reminder demo
 
-The checked-in `app` module contains an interactive Compose reminder prototype. Run `./gradlew :app:installDebug` with an Android device or emulator, then open **DateParser**. Enter `Buy milk tomorrow at 7pm`, preview the extracted title and date, correct either field using the title editor/date/time pickers, and explicitly add the reminder to a session-only list. No notifications, account, or database are involved.
+The checked-in `app` module contains an interactive Compose reminder prototype. Run `./gradlew :app:installDebug` with an Android device or emulator, then open **DateParser**. Enter `Buy milk tomorrow at 7pm`, preview the extracted title and date, correct either field using the title editor/date/time pickers, and explicitly add the reminder to a session-only list. Tap an English or Russian example to try it immediately. Editing the input clears the previous preview, so it must be reviewed again. No notifications, account, or database are involved.
 
 For ambiguous wording such as `Remind me tomorow at 7`, `Buy milk tomorrow 7, please`, or an invalid bare hour such as `tomorrow at 25`, the library rejects the unresolved time instead of quietly scheduling at the reference hour. Supply `7am`, `7pm`, or `19:00`, or select a date and time manually in the demo. A date-only expression such as `tomorrow` still inherits the reference time by design. The preview is always for review; a rule score is not a probability.
 
 The Android screen compiles the **same** `integration/consumer/src/commonMain/kotlin/ReminderDraft.kt` source as the standalone KMP consumer. UI edits and the in-memory list remain Android-only. A parsed range is not silently shortened to a single instant; the screen asks for a single time or manual selection. Manually chosen local times are validated for DST gaps and overlaps before saving.
+
+UI regression flows: [editing invalidates the preview](https://github.com/Alox1d/dateparser-kotlin/blob/main/.maestro/reminder-review.yaml) and [review, confirmation and ambiguous input](https://github.com/Alox1d/dateparser-kotlin/blob/main/.maestro/reminder-safety.yaml). Run them with Maestro on a test device after installing the demo.
 
 ### How a phrase becomes an instant
 
@@ -195,6 +197,6 @@ val europe = DateParser().parse("03/04/2026", DateOrder.DMY, reference, TimeZone
 
 The slash date denotes March 4 with `MDY` and April 3 with `DMY`. Without a selected order, ambiguous slash dates return no match. Never store a reminder without reviewing a partial or ambiguous parse.
 
-## License and origin
+## License
 
-MIT. Port and adaptation of [Alexey Orazov's date-parser](https://github.com/alordash/date-parser), originally integrated into WordNote by Alexander Baranov. Original copyright and permission text are preserved in [LICENSE](https://github.com/Alox1d/dateparser-kotlin/blob/main/LICENSE); attribution and the verified upstream commit are in [THIRD_PARTY_NOTICES.md](https://github.com/Alox1d/dateparser-kotlin/blob/main/THIRD_PARTY_NOTICES.md). Historical Android sources/tests are retained under `legacy/android` for comparison and are not built or published.
+MIT. See [LICENSE](https://github.com/Alox1d/dateparser-kotlin/blob/main/LICENSE) for the copyright and permission text and [THIRD_PARTY_NOTICES.md](https://github.com/Alox1d/dateparser-kotlin/blob/main/THIRD_PARTY_NOTICES.md) for upstream attribution. Historical Android sources and tests in `legacy/android` are retained for comparison and are not built or published.
