@@ -19,11 +19,11 @@ Extract dates, times, ranges and recurrence periods from reminder text, without 
 
 ## See it in action
 
-Type a reminder, review the extracted title and time, then confirm. Real screenshots of the Android Compose demo on API 35:
+Type a phrase, review the extracted title and time, then add the reminder. A short recording of the Android Compose demo:
 
-| Parsed reminder | Edited and saved | Ambiguous time: manual review |
-| --- | --- | --- |
-| ![Natural-language reminder parsed as Buy milk at 19:00](website/assets/reminder-preview.png) | ![Confirmed reminder in the session-only list](website/assets/reminder-saved.png) | ![Ambiguous time requires clarification before saving](website/assets/reminder-needs-review.png) |
+![Typing Buy milk tomorrow at 7pm, reviewing Buy milk for tomorrow at 19:00, and confirming it in the reminder list](website/assets/reminder-demo.gif)
+
+The demo keeps reminders for the current session; it does not send notifications.
 
 ## Installation
 
@@ -171,6 +171,12 @@ A range end with no date inherits the start's calendar date. An earlier end cloc
 ## Android Compose reminder demo
 
 The checked-in `app` module contains an interactive Compose reminder prototype. Run `./gradlew :app:installDebug` with an Android device or emulator, then open **DateParser**. Enter `Buy milk tomorrow at 7pm`, preview the extracted title and date, correct either field using the title editor/date/time pickers, and explicitly add the reminder to a session-only list. Tap an English or Russian example to try it immediately. Editing the input clears the previous preview, so it must be reviewed again. No notifications, account, or database are involved.
+
+Real screenshots on Android API 35:
+
+| Parsed reminder | Edited and saved | Ambiguous time: manual review |
+| --- | --- | --- |
+| ![Natural-language reminder parsed as Buy milk at 19:00](website/assets/reminder-preview.png) | ![Confirmed reminder in the session-only list](website/assets/reminder-saved.png) | ![Ambiguous time requires clarification before saving](website/assets/reminder-needs-review.png) |
 
 For ambiguous wording such as `Remind me tomorow at 7`, `Buy milk tomorrow 7, please`, or an invalid bare hour such as `tomorrow at 25`, the library rejects the unresolved time instead of quietly scheduling at the reference hour. Supply `7am`, `7pm`, or `19:00`, or select a date and time manually in the demo. A date-only expression such as `tomorrow` still inherits the reference time by design. The preview is always for review; a rule score is not a probability.
 
