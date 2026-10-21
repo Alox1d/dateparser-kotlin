@@ -1,0 +1,66 @@
+appId: com.example.dateparser
+name: Review, confirm and clarify reminders
+---
+- launchApp
+- tapOn: "Tomorrow, 7pm"
+- assertVisible:
+    id: reminder_title
+    text: "Buy milk"
+- assertVisible:
+    id: add_reminder
+    enabled: true
+- longPressOn:
+    id: reminder_title
+- tapOn: "Select all"
+- eraseText
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: add_reminder
+- assertVisible:
+    id: add_reminder
+    enabled: false
+- tapOn:
+    id: reminder_title
+- inputText: "Pick up groceries"
+- hideKeyboard
+- tapOn:
+    id: add_reminder
+- assertVisible: "Pick up groceries"
+- assertNotVisible: "Check before saving"
+- tapOn: "In 2 hours"
+- assertVisible:
+    id: reminder_title
+    text: "Take a break"
+- tapOn:
+    id: add_reminder
+- assertVisible: "Take a break"
+- tapOn: "По-русски"
+- assertVisible:
+    id: reminder_title
+    text: "Купить молоко"
+- tapOn:
+    id: add_reminder
+- assertVisible: "Купить молоко"
+- tapOn:
+    id: reminder_input
+- inputText: "Buy milk tomorrow at 7"
+- hideKeyboard
+- tapOn:
+    id: preview_reminder
+- assertVisible: "NEEDS A LITTLE CLARITY"
+- assertVisible:
+    id: add_reminder
+    enabled: false
+- longPressOn:
+    id: reminder_input
+- tapOn: "Select all"
+- eraseText
+- inputText: "Work tomorrow from 5PM to 8PM"
+- hideKeyboard
+- tapOn:
+    id: preview_reminder
+- assertVisible: "This demo saves one time.*"
+- assertVisible:
+    id: add_reminder
+    enabled: false

@@ -1,0 +1,12 @@
+appId: com.example.dateparser
+name: Editing the phrase invalidates the previous preview
+---
+- launchApp
+- tapOn: "Preview reminder.*"
+- assertVisible:
+    text: "Add reminder"
+    enabled: true
+- tapOn: "Buy milk tomorrow at 7pm"
+- inputText: "!"
+- hideKeyboard
+- assertNotVisible: "Add reminder"
