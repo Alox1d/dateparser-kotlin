@@ -22,13 +22,23 @@ final class ReminderUITests: XCTestCase {
 
     func testRussianExampleAndRangeUseTheSharedPreview() {
         let app = launch()
-        app.buttons["try_example"].tap()
-        app.buttons["Russian"].tap()
+        // Tap the visible Menu label, not the wider Form row accessibility wrapper.
+        let examples = app.staticTexts["Try an example"]
+        XCTAssertTrue(examples.waitForExistence(timeout: 10))
+        examples.tap()
+        let russian = app.descendants(matching: .any).matching(identifier: "Russian").firstMatch
+        XCTAssertTrue(russian.waitForExistence(timeout: 10))
+        russian.tap()
         XCTAssertTrue(app.textFields["reminder_title"].waitForExistence(timeout: 10))
         XCTAssertEqual(app.textFields["reminder_title"].value as? String, "купить")
-        app.buttons["try_example"].tap()
-        app.buttons["Range"].tap()
-        XCTAssertTrue(app.switches["include_end"].waitForExistence(timeout: 10))
-        XCTAssertEqual(app.switches["include_end"].value as? String, "1")
+        if !examples.isHittable { app.swipeDown() }
+        examples.tap()
+        let range = app.descendants(matching: .any).matching(identifier: "Range").firstMatch
+        XCTAssertTrue(range.waitForExistence(timeout: 10))
+        range.tap()
+        let includeEnd = app.switches["include_end"]
+        if !includeEnd.isHittable { app.swipeUp() }
+        XCTAssertTrue(includeEnd.waitForExistence(timeout: 10))
+        XCTAssertEqual(includeEnd.value as? String, "1")
     }
 }

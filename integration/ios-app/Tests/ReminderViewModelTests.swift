@@ -21,7 +21,10 @@ final class ReminderViewModelTests: XCTestCase {
         XCTAssertEqual(model.reminders[0].title, "Groceries")
         XCTAssertEqual(model.reminders[0].startsAt, date("2026-07-04T17:00:00Z"))
         XCTAssertEqual(model.reminders[0].endsAt, date("2026-07-04T20:00:00Z"))
-        XCTAssertEqual(model.reminders[0].timeZoneId, "UTC")
+        // Foundation may canonicalize UTC to GMT; compare the saved zone itself.
+        let savedTimeZone = TimeZone(identifier: model.reminders[0].timeZoneId)
+        XCTAssertNotNil(savedTimeZone)
+        XCTAssertEqual(savedTimeZone, TimeZone(secondsFromGMT: 0))
         XCTAssertFalse(model.hasPreview)
     }
 
