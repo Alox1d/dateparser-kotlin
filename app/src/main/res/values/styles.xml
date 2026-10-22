@@ -1,7 +1,7 @@
 <resources>
     <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">#F7F4EF</item>
-        <item name="android:navigationBarColor">#F7F4EF</item>
+        <item name="android:statusBarColor">#F4F6FF</item>
+        <item name="android:navigationBarColor">#F4F6FF</item>
         <item name="android:colorAccent">#7928CA</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
