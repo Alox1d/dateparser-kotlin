@@ -15,3 +15,5 @@ English and Russian · Android, JVM and iOS.
 - [English documentation](en/index.md)
 - [Документация на русском](ru/index.md)
 - [Source code / Исходники](https://github.com/Alox1d/dateparser-kotlin)
+
+![From a phrase to a reviewed and confirmed reminder / Из фразы в проверенное и подтверждённое напоминание](assets/reminder-demo.gif)
