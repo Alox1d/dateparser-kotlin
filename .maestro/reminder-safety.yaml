@@ -1,14 +1,28 @@
 appId: com.example.dateparser
 name: Review, confirm and clarify reminders
 ---
-- launchApp
+- launchApp:
+    clearState: true
 - tapOn: "Tomorrow, 7pm"
+- scrollUntilVisible:
+    element:
+      id: reminder_title
+    centerElement: true
 - assertVisible:
     id: reminder_title
     text: "Buy milk"
+- scrollUntilVisible:
+    element:
+      id: add_reminder
+    centerElement: true
 - assertVisible:
     id: add_reminder
     enabled: true
+- scrollUntilVisible:
+    element:
+      id: reminder_title
+    direction: UP
+    centerElement: true
 - longPressOn:
     id: reminder_title
 - tapOn: "Select all"
@@ -17,50 +31,153 @@ name: Review, confirm and clarify reminders
 - scrollUntilVisible:
     element:
       id: add_reminder
+    centerElement: true
 - assertVisible:
     id: add_reminder
     enabled: false
+- scrollUntilVisible:
+    element:
+      id: reminder_title
+    direction: UP
+    centerElement: true
 - tapOn:
     id: reminder_title
 - inputText: "Pick up groceries"
 - hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: add_reminder
+    centerElement: true
 - tapOn:
     id: add_reminder
+- scrollUntilVisible:
+    element: "Pick up groceries"
+    centerElement: true
 - assertVisible: "Pick up groceries"
-- assertNotVisible: "Check before saving"
+- assertNotVisible:
+    id: reminder_preview
+- scrollUntilVisible:
+    element: "In 2 hours"
+    direction: UP
+    centerElement: true
 - tapOn: "In 2 hours"
+- scrollUntilVisible:
+    element:
+      id: reminder_title
+    centerElement: true
 - assertVisible:
     id: reminder_title
     text: "Take a break"
+- scrollUntilVisible:
+    element:
+      id: add_reminder
+    centerElement: true
 - tapOn:
     id: add_reminder
+- scrollUntilVisible:
+    element: "Take a break"
+    centerElement: true
 - assertVisible: "Take a break"
+- assertNotVisible:
+    id: reminder_preview
+- scrollUntilVisible:
+    element: "По-русски"
+    direction: UP
+    centerElement: true
 - tapOn: "По-русски"
+- scrollUntilVisible:
+    element:
+      id: reminder_title
+    centerElement: true
 - assertVisible:
     id: reminder_title
     text: "Купить молоко"
+- scrollUntilVisible:
+    element:
+      id: add_reminder
+    centerElement: true
 - tapOn:
     id: add_reminder
+- scrollUntilVisible:
+    element: "Купить молоко"
+    centerElement: true
 - assertVisible: "Купить молоко"
+- assertNotVisible:
+    id: reminder_preview
+- scrollUntilVisible:
+    element:
+      id: reminder_input
+    direction: UP
+    centerElement: true
 - tapOn:
     id: reminder_input
 - inputText: "Buy milk tomorrow at 7"
 - hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: preview_reminder
+    centerElement: true
 - tapOn:
     id: preview_reminder
+- scrollUntilVisible:
+    element: "NEEDS A LITTLE CLARITY"
+    centerElement: true
 - assertVisible: "NEEDS A LITTLE CLARITY"
+- scrollUntilVisible:
+    element:
+      id: add_reminder
+    centerElement: true
 - assertVisible:
     id: add_reminder
     enabled: false
+- scrollUntilVisible:
+    element:
+      id: reminder_input
+    direction: UP
+    centerElement: true
 - longPressOn:
     id: reminder_input
 - tapOn: "Select all"
 - eraseText
 - inputText: "Work tomorrow from 5PM to 8PM"
 - hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: preview_reminder
+    centerElement: true
 - tapOn:
     id: preview_reminder
-- assertVisible: "This demo saves one time.*"
+- scrollUntilVisible:
+    element:
+      id: reminder_title
+    centerElement: true
+- assertVisible:
+    id: reminder_title
+    text: "Work"
+- scrollUntilVisible:
+    element:
+      id: end_time
+    centerElement: true
+- assertVisible:
+    text: "20:00"
+    childOf:
+      id: end_time
+- scrollUntilVisible:
+    element:
+      id: add_reminder
+    centerElement: true
 - assertVisible:
     id: add_reminder
-    enabled: false
+    enabled: true
+- tapOn:
+    id: add_reminder
+- scrollUntilVisible:
+    element: "Work"
+    centerElement: true
+- assertVisible: "Work"
+- scrollUntilVisible:
+    element: "Until .*20:00"
+    centerElement: true
+- assertVisible: "Until .*20:00"
+- assertNotVisible:
+    id: reminder_preview

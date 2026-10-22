@@ -75,6 +75,17 @@ The Russian phrase `купить через 5 часов` produces the same inst
 
 It shows US/European date order, timezones and a reminder range with a fixed reference. You can also provide your own phrase. Building this checked-in example requires JDK 17-21 and Android SDK 35; see the demo README for native checks.
 
+For a **JVM-only project without Android SDK**, use the independent [JVM consumer](https://github.com/Alox1d/dateparser-kotlin/blob/main/integration/jvm-consumer/README.md):
+
+```sh
+./gradlew -p integration/jvm-consumer run --console=plain
+./gradlew -p integration/jvm-consumer run --args='--help' --console=plain
+```
+
+It needs only JDK 17-21 and resolves 0.1.3 from Maven Central. The fixed examples cover English/Russian, both range boundaries, timezones and explicit date order. A custom no-match returns a nonzero application status; malformed options produce an actionable error.
+
+The [SwiftUI iOS host](https://github.com/Alox1d/dateparser-kotlin/blob/main/integration/ios-app/README.md) adds input, editable title/start/end, explicit confirmation and a session list on top of the same shared Kotlin preview. Open `integration/ios-app/DateParserDemo.xcodeproj` on an Apple Silicon Mac with full Xcode. This source example builds its own local framework from the published Kotlin dependency; it does not add a separately distributed Swift package.
+
 ## English dates for the US and Europe
 
 Named dates work in either order, with full or abbreviated months and optional ordinals. These examples use the reference time above and UTC:
@@ -185,9 +196,13 @@ Real screenshots on Android API 35:
 
 For ambiguous wording such as `Remind me tomorow at 7`, `Buy milk tomorrow 7, please`, or an invalid bare hour such as `tomorrow at 25`, the library rejects the unresolved time instead of quietly scheduling at the reference hour. Supply `7am`, `7pm`, or `19:00`, or select a date and time manually in the demo. A date-only expression such as `tomorrow` still inherits the reference time by design. The preview is always for review; a rule score is not a probability.
 
-The Android screen compiles the **same** `integration/consumer/src/commonMain/kotlin/ReminderDraft.kt` source as the standalone KMP consumer. UI edits and the in-memory list remain Android-only. A parsed range is not silently shortened to a single instant; the screen asks for a single time or manual selection. Manually chosen local times are validated for DST gaps and overlaps before saving.
+The Android screen compiles the **same** `integration/consumer/src/commonMain/kotlin/ReminderDraft.kt` source as the standalone KMP consumer. Parsed ranges keep both editable endpoints in the preview and session list. Manually chosen local times are validated for DST gaps and overlaps independently at each endpoint; an unchanged parsed instant retains its exact value.
+
+**Open in calendar** passes the reviewed title, start, end and timezone to an Android calendar editor with `ACTION_INSERT`. For a single instant, explicitly choose 30 minutes or 1 hour, then adjust the displayed end if needed. End must be after start. The calendar app owns the final Save/Cancel action; the demo requests no calendar permission and schedules no notifications. If there is no calendar handler, the reviewed details remain on screen with an explanatory message.
 
 UI regression flows: [editing invalidates the preview](https://github.com/Alox1d/dateparser-kotlin/blob/main/.maestro/reminder-review.yaml) and [review, confirmation and ambiguous input](https://github.com/Alox1d/dateparser-kotlin/blob/main/.maestro/reminder-safety.yaml). Run them with Maestro on a test device after installing the demo.
+
+The [calendar flow](https://github.com/Alox1d/dateparser-kotlin/blob/main/.maestro/calendar-flow.yaml) covers explicit duration, ranges and the missing-handler state on a test device without a calendar app. [Android instrumentation tests](https://github.com/Alox1d/dateparser-kotlin/blob/main/app/src/androidTest/java/com/example/dateparser/CalendarIntentTest.kt) check the actual Intent action, URI and extras; run `./gradlew :app:connectedDebugAndroidTest` with `ANDROID_SERIAL` set to your test device. These checks do not save an event in another app.
 
 ### How a phrase becomes an instant
 

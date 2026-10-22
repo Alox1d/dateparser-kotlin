@@ -20,8 +20,12 @@ kotlin {
         withHostTest { }
         compilerOptions { jvmTarget.set(JvmTarget.JVM_1_8) }
     }
-    iosArm64()
-    iosSimulatorArm64()
+    listOf(iosArm64(), iosSimulatorArm64()).forEach { target ->
+        target.binaries.framework {
+            baseName = "ReminderShared"
+            isStatic = true
+        }
+    }
     sourceSets {
         commonMain.dependencies { implementation("io.github.alox1d:dateparser-kotlin:${providers.gradleProperty("parserVersion").getOrElse("0.1.3")}") }
         commonTest.dependencies { implementation(kotlin("test")) }

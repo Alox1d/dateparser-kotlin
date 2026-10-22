@@ -2,12 +2,14 @@ package com.example.dateparser
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.ActivityNotFoundException
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -38,10 +40,12 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
+import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 
-private data class SavedReminder(val title: String, val startsAt: Instant)
+private data class SavedReminder(val title: String, val startsAt: Instant, val endsAt: Instant?)
 
 private val dayFormat = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH)
 private val timeFormat = DateTimeFormatter.ofPattern("HH:mm", Locale.ENGLISH)
@@ -52,15 +56,21 @@ internal fun ReminderScreen() {
     val context = LocalContext.current
     val focus = LocalFocusManager.current
     val keyboard = LocalSoftwareKeyboardController.current
+    val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
     val zone = remember { TimeZone.currentSystemDefault() }
     val zoneId = remember { ZoneId.of(zone.id) }
     var input by remember { mutableStateOf("Buy milk tomorrow at 7pm") }
     var title by remember { mutableStateOf("") }
     var chosenTime by remember { mutableStateOf<LocalDateTime?>(null) }
+    var chosenEndTime by remember { mutableStateOf<LocalDateTime?>(null) }
     var parsedInstant by remember { mutableStateOf<Instant?>(null) }
+    var parsedEndInstant by remember { mutableStateOf<Instant?>(null) }
     var edited by remember { mutableStateOf(false) }
+    var endEdited by remember { mutableStateOf(false) }
     var previewVisible by remember { mutableStateOf(false) }
     var explanation by remember { mutableStateOf("") }
+    var calendarMessage by remember { mutableStateOf("") }
     val saved = remember { mutableStateListOf<SavedReminder>() }
 
     fun preview(text: String = input) {
@@ -70,33 +80,49 @@ internal fun ReminderScreen() {
         val result = parseReminderDraft(text, Clock.System.now(), zone)
         previewVisible = true
         edited = false
+        endEdited = false
         parsedInstant = null
-        if (result == null || result.endsAt != null) {
+        parsedEndInstant = null
+        chosenEndTime = null
+        calendarMessage = ""
+        if (result == null) {
             title = text.trim()
             chosenTime = null
-            explanation = if (result?.endsAt != null) {
-                "This demo saves one time. Enter a single time or choose it below."
-            } else {
-                "A little more detail? Try 7pm, 19:00, or choose a date and time below."
-            }
+            explanation = "A little more detail? Try 7pm, 19:00, or choose a date and time below."
         } else {
             title = result.title
             parsedInstant = result.startsAt
+            parsedEndInstant = result.endsAt
             chosenTime = LocalDateTime.ofInstant(
                 java.time.Instant.parse(result.startsAt.toString()), zoneId
             )
-            explanation = "Review the title and time, then make it yours."
+            chosenEndTime = result.endsAt?.let { end ->
+                LocalDateTime.ofInstant(java.time.Instant.parse(end.toString()), zoneId)
+            }
+            explanation = if (result.endsAt != null) {
+                "This phrase includes a range. Review both dates and times; both will be kept."
+            } else {
+                "Review the title and time, then make it yours."
+            }
         }
     }
 
-    val resolved: Instant? = chosenTime?.let { local ->
-        if (!edited) parsedInstant
-        else zoneId.rules.getValidOffsets(local).singleOrNull()?.let { offset ->
-            Instant.parse(local.toInstant(offset).toString())
-        }
+    val resolved = resolveReminderTime(chosenTime, parsedInstant, edited, zoneId)
+    val resolvedEnd = resolveReminderTime(chosenEndTime, parsedEndInstant, endEdited, zoneId)
+    val validEnd = chosenEndTime == null || (resolved != null && resolvedEnd != null && resolvedEnd > resolved)
+    val calendarEvent = calendarEventDetails(title, resolved, resolvedEnd, zone.id)
+
+    fun chooseDuration(durationMinutes: Int) {
+        val start = resolved ?: return
+        val end = start + durationMinutes.minutes
+        parsedEndInstant = end
+        chosenEndTime = LocalDateTime.ofInstant(java.time.Instant.parse(end.toString()), zoneId)
+        endEdited = false
+        calendarMessage = ""
     }
 
     LazyColumn(
+        state = listState,
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
             .safeDrawingPadding().imePadding()
             .semantics { testTagsAsResourceId = true },
@@ -110,7 +136,7 @@ internal fun ReminderScreen() {
                     Eyebrow("PUT IT INTO WORDS")
                     OutlinedTextField(
                         value = input,
-                        onValueChange = { input = it; previewVisible = false },
+                        onValueChange = { input = it; previewVisible = false; calendarMessage = "" },
                         label = { Text("Describe your reminder") },
                         placeholder = { Text("Buy milk tomorrow at 7pm") },
                         modifier = Modifier.fillMaxWidth().testTag("reminder_input"),
@@ -152,46 +178,85 @@ internal fun ReminderScreen() {
                         Text("Check before saving", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
                         Text(explanation, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         OutlinedTextField(
-                            value = title, onValueChange = { title = it },
+                            value = title, onValueChange = { title = it; calendarMessage = "" },
                             label = { Text("Reminder title") },
                             modifier = Modifier.fillMaxWidth().testTag("reminder_title"),
                             shape = RoundedCornerShape(16.dp), singleLine = true
                         )
-                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            TimeTile("Edit date", chosenTime?.format(dayFormat) ?: "Choose date", Modifier.weight(1f)) {
-                                focus.clearFocus()
-                                val initial = chosenTime ?: LocalDateTime.now(zoneId).plusDays(1)
-                                DatePickerDialog(context, { _, y, month, day ->
-                                    chosenTime = LocalDateTime.of(y, month + 1, day, initial.hour, initial.minute)
-                                    edited = true
-                                }, initial.year, initial.monthValue - 1, initial.dayOfMonth).show()
-                            }
-                            TimeTile("Edit time", chosenTime?.format(timeFormat) ?: "Choose time", Modifier.weight(1f), chosenTime != null) {
-                                focus.clearFocus()
-                                val initial = chosenTime ?: return@TimeTile
-                                TimePickerDialog(context, { _, hour, minute ->
-                                    chosenTime = initial.withHour(hour).withMinute(minute)
-                                    edited = true
-                                }, initial.hour, initial.minute, true).show()
+                        ReminderTimeEditor("Start", chosenTime, zoneId) {
+                            chosenTime = it
+                            edited = true
+                            calendarMessage = ""
+                        }
+                        if (chosenEndTime != null) {
+                            ReminderTimeEditor("End", chosenEndTime, zoneId) {
+                                chosenEndTime = it
+                                endEdited = true
+                                calendarMessage = ""
                             }
                         }
                         Text("Timezone: " + zone.id, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         if (chosenTime != null && resolved == null) {
-                            Text("Selected local time is invalid or overlaps a DST transition.", color = MaterialTheme.colorScheme.error)
+                            Text("Selected start time is invalid or overlaps a DST transition.", color = MaterialTheme.colorScheme.error)
+                        }
+                        if (chosenEndTime != null && resolvedEnd == null) {
+                            Text("Selected end time is invalid or overlaps a DST transition.", color = MaterialTheme.colorScheme.error)
+                        } else if (resolved != null && resolvedEnd != null && resolvedEnd <= resolved) {
+                            Text("Choose an end after the start. For an overnight event, change the end date too.", color = MaterialTheme.colorScheme.error)
                         }
                         Button(
-                            enabled = title.isNotBlank() && resolved != null,
+                            enabled = title.isNotBlank() && resolved != null && validEnd,
                             modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("add_reminder"),
                             shape = RoundedCornerShape(14.dp),
                             onClick = {
                                 val instant = resolved ?: return@Button
                                 focus.clearFocus()
                                 keyboard?.hide()
-                                saved.add(0, SavedReminder(title.trim(), instant))
+                                saved.add(0, SavedReminder(title.trim(), instant, resolvedEnd))
                                 previewVisible = false
                                 input = ""
+                                scope.launch { listState.animateScrollToItem(0) }
                             }
                         ) { Text("Add reminder", fontWeight = FontWeight.SemiBold) }
+                        Text("Add reminder keeps these details for this session only.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        HorizontalDivider()
+                        Eyebrow("SAVE IN YOUR CALENDAR")
+                        if (chosenEndTime == null) {
+                            Text("Calendar events need an end. Choose a duration, then adjust the end date or time above.", style = MaterialTheme.typography.bodyMedium)
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                SuggestionChip(
+                                    onClick = { chooseDuration(30) }, enabled = resolved != null,
+                                    label = { Text("30 minutes") }, modifier = Modifier.testTag("duration_30_minutes")
+                                )
+                                SuggestionChip(
+                                    onClick = { chooseDuration(60) }, enabled = resolved != null,
+                                    label = { Text("1 hour") }, modifier = Modifier.testTag("duration_1_hour")
+                                )
+                            }
+                        } else if (resolved != null && resolvedEnd != null && validEnd) {
+                            Text("Calendar duration: ${resolvedEnd - resolved}", style = MaterialTheme.typography.bodyMedium)
+                        }
+                        Text("Open an editable event with the reviewed title, start and end. Save or cancel in your calendar app.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        OutlinedButton(
+                            enabled = calendarEvent != null,
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("open_calendar"),
+                            shape = RoundedCornerShape(14.dp),
+                            onClick = {
+                                val event = calendarEvent ?: return@OutlinedButton
+                                focus.clearFocus()
+                                keyboard?.hide()
+                                val intent = calendarInsertIntent(event)
+                                calendarMessage = try {
+                                    context.startActivity(intent)
+                                    "Calendar editor opened. Save or cancel the event there."
+                                } catch (_: ActivityNotFoundException) {
+                                    "No calendar app can open this event. Your reviewed details are still here."
+                                }
+                            }
+                        ) { Text("Open in calendar", fontWeight = FontWeight.SemiBold) }
+                        if (calendarMessage.isNotEmpty()) {
+                            Text(calendarMessage, modifier = Modifier.testTag("calendar_status"), style = MaterialTheme.typography.bodyMedium)
+                        }
                     }
                 }
             }
@@ -214,6 +279,9 @@ internal fun ReminderScreen() {
         }
         items(saved) { reminder ->
             val local = LocalDateTime.ofInstant(java.time.Instant.parse(reminder.startsAt.toString()), zoneId)
+            val localEnd = reminder.endsAt?.let { end ->
+                LocalDateTime.ofInstant(java.time.Instant.parse(end.toString()), zoneId)
+            }
             Card(shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                 Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     Surface(shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.primaryContainer) {
@@ -225,13 +293,39 @@ internal fun ReminderScreen() {
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text(reminder.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                         Text(local.format(dayFormat) + " · " + local.format(timeFormat), style = MaterialTheme.typography.bodyMedium)
+                        if (localEnd != null) {
+                            Text("Until " + localEnd.format(dayFormat) + " · " + localEnd.format(timeFormat), style = MaterialTheme.typography.bodyMedium)
+                        }
                         Text(zone.id, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
         }
         item {
-            Text("DateParser Kotlin demo · No notifications or permanent storage", modifier = Modifier.padding(bottom = 8.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("DateParser Kotlin demo · Session reminders stay here. Save calendar events in your calendar app. No notifications are scheduled by this demo.", modifier = Modifier.padding(bottom = 8.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+@Composable
+private fun ReminderTimeEditor(label: String, chosenTime: LocalDateTime?, zoneId: ZoneId, onChange: (LocalDateTime) -> Unit) {
+    val context = LocalContext.current
+    val focus = LocalFocusManager.current
+    val tag = label.lowercase(Locale.ROOT)
+    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        TimeTile("$label date", chosenTime?.format(dayFormat) ?: "Choose date", Modifier.weight(1f).testTag("${tag}_date")) {
+            focus.clearFocus()
+            val initial = chosenTime ?: LocalDateTime.now(zoneId).plusDays(1)
+            DatePickerDialog(context, { _, y, month, day ->
+                onChange(LocalDateTime.of(y, month + 1, day, initial.hour, initial.minute))
+            }, initial.year, initial.monthValue - 1, initial.dayOfMonth).show()
+        }
+        TimeTile("$label time", chosenTime?.format(timeFormat) ?: "Choose time", Modifier.weight(1f).testTag("${tag}_time"), chosenTime != null) {
+            focus.clearFocus()
+            val initial = chosenTime ?: return@TimeTile
+            TimePickerDialog(context, { _, hour, minute ->
+                onChange(initial.withHour(hour).withMinute(minute).withSecond(0).withNano(0))
+            }, initial.hour, initial.minute, true).show()
         }
     }
 }

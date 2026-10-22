@@ -1,0 +1,145 @@
+appId: com.example.dateparser
+name: Preserve reviewed calendar details when no calendar handler is installed
+# Prerequisite: this device has no ACTION_INSERT handler for
+# content://com.android.calendar/events. A calendar editor or chooser makes this flow fail.
+# CalendarIntentTest separately checks the actual Android Intent and its payload.
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: preview_reminder
+- scrollUntilVisible:
+    element:
+      id: open_calendar
+    centerElement: true
+- assertVisible:
+    id: open_calendar
+    enabled: false
+- scrollUntilVisible:
+    element:
+      id: duration_1_hour
+    direction: UP
+    centerElement: true
+- tapOn:
+    id: duration_1_hour
+- scrollUntilVisible:
+    element:
+      id: open_calendar
+    centerElement: true
+- assertVisible:
+    id: open_calendar
+    enabled: true
+- scrollUntilVisible:
+    element:
+      id: end_time
+    direction: UP
+    centerElement: true
+- assertVisible:
+    text: "20:00"
+    childOf:
+      id: end_time
+- scrollUntilVisible:
+    element:
+      id: reminder_input
+    direction: UP
+    centerElement: true
+- tapOn:
+    id: reminder_input
+- hideKeyboard
+# Check a compact preview heading in the same viewport before editing the focused input.
+- assertVisible: "Check before saving"
+- inputText: "!"
+- assertNotVisible: "Check before saving"
+- assertNotVisible:
+    id: reminder_preview
+- assertVisible:
+    id: reminder_input
+    text: ".*!.*"
+- longPressOn:
+    id: reminder_input
+- tapOn: "Select all"
+- eraseText
+- inputText: "Work tomorrow from 5PM to 8PM"
+# The input kept focus after hideKeyboard above; no keyboard was reopened.
+- scrollUntilVisible:
+    element:
+      id: preview_reminder
+    centerElement: true
+- tapOn:
+    id: preview_reminder
+- scrollUntilVisible:
+    element:
+      id: reminder_title
+    centerElement: true
+- assertVisible:
+    id: reminder_title
+    text: "Work"
+- longPressOn:
+    id: reminder_title
+- tapOn: "Select all"
+- eraseText
+- inputText: "Planning session"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: start_time
+    centerElement: true
+- assertVisible:
+    text: "17:00"
+    childOf:
+      id: start_time
+- scrollUntilVisible:
+    element:
+      id: end_time
+    centerElement: true
+- assertVisible:
+    text: "20:00"
+    childOf:
+      id: end_time
+- scrollUntilVisible:
+    element:
+      id: open_calendar
+    centerElement: true
+- assertVisible:
+    id: open_calendar
+    enabled: true
+- tapOn:
+    id: open_calendar
+- scrollUntilVisible:
+    element:
+      id: calendar_status
+    centerElement: true
+- assertVisible:
+    id: calendar_status
+    text: "No calendar app can open this event.*"
+- scrollUntilVisible:
+    element:
+      id: reminder_title
+    direction: UP
+    centerElement: true
+- assertVisible:
+    id: reminder_title
+    text: "Planning session"
+- scrollUntilVisible:
+    element:
+      id: start_time
+    centerElement: true
+- assertVisible:
+    text: "17:00"
+    childOf:
+      id: start_time
+- scrollUntilVisible:
+    element:
+      id: end_time
+    centerElement: true
+- assertVisible:
+    text: "20:00"
+    childOf:
+      id: end_time
+- scrollUntilVisible:
+    element:
+      id: open_calendar
+    centerElement: true
+- assertVisible:
+    id: open_calendar
+    enabled: true

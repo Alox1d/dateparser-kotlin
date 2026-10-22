@@ -7,7 +7,7 @@ description: Build a shared reminder preview with DateParser Kotlin 0.1.3 from M
 
 A reminder field is more useful when it accepts `Buy milk, tomorrow from 5PM to 8PM`. The application still needs an editable title, an actual timestamp, and a clear way to ask for clarification. For a Kotlin Multiplatform app, this conversion can live in `commonMain`, while Android and iOS own the input form and confirmation screen.
 
-This walkthrough uses **DateParser Kotlin 0.1.3**, an MIT library that recognizes supported English and Russian date expressions offline. You will build a small reminder preview, run it on JVM, and use the same shared code on Android and iOS. It uses the published Maven Central dependency, so the example also checks real consumer integration.
+This walkthrough uses **DateParser Kotlin 0.1.3**, an MIT library that recognizes supported English and Russian date expressions offline. You will build a small reminder preview, run it on JVM, and use the same shared code on Android and iOS. The standalone consumers and SwiftUI host use the published Maven Central dependency, so they also check real consumer integration.
 
 ## Run the example first
 
@@ -19,7 +19,16 @@ cd dateparser-kotlin
 ./gradlew -p integration/consumer runDemo -PcentralOnly=true --console=plain
 ```
 
-Use JDK 17-21 and Android SDK 35 for this checked-in project. It pins Kotlin 2.3.20, Android Gradle Plugin 8.13.2 and Gradle 8.13. The JVM demo needs no Android emulator or iOS simulator. Full Xcode on macOS is required for the separate iOS tests.
+If you want to try the published parser on **JVM without installing Android SDK**, the independent JVM consumer is a shorter first step:
+
+```sh
+./gradlew -p integration/jvm-consumer run --console=plain
+./gradlew -p integration/jvm-consumer run --args='--help' --console=plain
+```
+
+That build uses only Kotlin/JVM and Maven Central. It includes fixed English/Russian examples and custom options for reference, timezone and date order. A custom no-match returns application status 1; invalid options return 2 with an explanation. The [JVM README](https://github.com/Alox1d/dateparser-kotlin/blob/main/integration/jvm-consumer/README.md) includes commands for your own input.
+
+Use JDK 17-21 for either build. The shared KMP consumer additionally needs Android SDK 35 because it declares an Android target. It pins Kotlin 2.3.20, Android Gradle Plugin 8.13.2 and Gradle 8.13. Both terminal demos run without an emulator. Full Xcode on macOS is required for the iOS host and native checks.
 
 Here is part of the real output with the fixed reference `2026-07-03T10:15:00Z`:
 
@@ -138,6 +147,48 @@ Try the European named-date form in Berlin:
 
 Store the resolved instant and the timezone needed for display. In production, `Clock.System.now()` can supply the reference, and the user's chosen zone can supply `TimeZone`. DateParser uses elapsed time for relative hours/minutes/seconds and calendar arithmetic for days/months/years. A calendar day is not always 24 elapsed hours across a daylight-saving transition. Show the resolved local time in the preview, especially around DST gaps and overlaps.
 
+## Review the shared result in SwiftUI
+
+The repository includes an [iOS host with a checked-in Xcode project](https://github.com/Alox1d/dateparser-kotlin/blob/main/integration/ios-app/README.md). On an Apple Silicon Mac, open `integration/ios-app/DateParserDemo.xcodeproj`, choose the `DateParserDemo` scheme and an iPhone simulator, then run. Its build phase resolves DateParser Kotlin 0.1.3 from Maven Central and builds a local static framework from the shared consumer. No CocoaPods or project-generation step is needed.
+
+The application adapter exposes a small boundary to Swift:
+
+```swift
+import Foundation
+import ReminderShared
+
+let preview = ReminderPreviewParser().parse(
+    text: "Buy milk tomorrow at 7pm",
+    referenceEpochMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000),
+    timeZoneId: "Europe/Berlin",
+    dateOrder: "NONE"
+)
+```
+
+`ReminderPreviewParser` delegates to `parseReminderDraft`; it exposes the title, start/end epoch milliseconds and timezone ID. Date parsing stays in Kotlin. The SwiftUI form turns those values into editable date pickers, displays the corresponding UTC instants and requires explicit confirmation. Changing the original input, timezone or date order invalidates the previous preview. Both range endpoints are retained, an empty title needs user input, and an end before the start blocks confirmation.
+
+Confirmed values live only in the session list. The host adds no persistence or notification scheduling. It is a source integration example, so users build the local framework as part of the app; the library release still has no separate Swift package distribution.
+
+## Pass a reviewed event to the Android calendar editor
+
+The [Android Compose example](https://github.com/Alox1d/dateparser-kotlin/tree/main/app) has separate actions for keeping a reminder in its session list and opening a calendar event. This app compiles the same shared reminder adapter but depends on the local `:dateparser` project; the standalone consumer checks the published Android artifact. A parsed range provides both endpoints. A single date/time needs an explicit 30-minute or one-hour choice before calendar export; the end remains editable afterward.
+
+After validating the reviewed values, the sample builds the standard Android insert Intent:
+
+```kotlin
+val intent = Intent(Intent.ACTION_INSERT, CalendarContract.Events.CONTENT_URI).apply {
+    putExtra(CalendarContract.Events.TITLE, reviewedTitle)
+    putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, reviewedStart.toEpochMilliseconds())
+    putExtra(CalendarContract.EXTRA_EVENT_END_TIME, reviewedEnd.toEpochMilliseconds())
+    putExtra(CalendarContract.Events.EVENT_TIMEZONE, reviewedZone.id)
+    putExtra(CalendarContract.EXTRA_EVENT_ALL_DAY, false)
+}
+```
+
+The [complete implementation](https://github.com/Alox1d/dateparser-kotlin/blob/main/app/src/main/java/com/example/dateparser/ReminderScreen.kt) opens that Intent and handles `ActivityNotFoundException` without discarding the review. The calendar app owns the final Save/Cancel step, following Android's [calendar insert Intent](https://developer.android.com/identity/providers/calendar-provider#intent-insert) flow. The demo requests no calendar permission and does not write directly to a calendar provider.
+
+An unchanged parsed endpoint retains its original instant. A manually edited local endpoint must have exactly one valid UTC offset; DST gaps and overlaps require another selection. Start and end are checked independently, and the end must be after the start. The application does not manufacture a recurrence schedule from a parser interval.
+
 ## Check all the platforms you use
 
 The sample's shared behavior tests exercise reminder titles, both range boundaries, explicit date order, timezone resolution, unsupported input and recurrence handling. Run them against Maven Central:
@@ -146,7 +197,11 @@ The sample's shared behavior tests exercise reminder titles, both range boundari
 ./gradlew -p integration/consumer jvmTest testAndroidHostTest -PcentralOnly=true
 # On macOS with full Xcode:
 ./gradlew -p integration/consumer iosSimulatorArm64Test compileKotlinIosArm64 -PcentralOnly=true
+# SwiftUI state and UI tests on an available iPhone simulator:
+bash scripts/test_ios_demo.sh
 ```
+
+The independent JVM consumer has its own `test` task. Android calendar payload tests run with `./gradlew :app:connectedDebugAndroidTest` and `ANDROID_SERIAL` set to a test device; they inspect the actual Intent and do not save an event in a calendar app. The [sample READMEs](https://github.com/Alox1d/dateparser-kotlin/tree/main/integration) document prerequisites and what each check covers.
 
 Android host tests validate shared code on the JVM; they are not device instrumentation tests. The iOS simulator tests execute the shared code, while device compilation checks the other native target. Your platform code still owns permissions, notifications, persistence and background scheduling.
 

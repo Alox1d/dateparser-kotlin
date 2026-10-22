@@ -43,3 +43,8 @@ obj/
 .superpowers/
 .kotlin/
 site/
+
+# Local Xcode state
+xcuserdata/
+*.xcuserstate
+*.xcresult/
