@@ -26,7 +26,7 @@ Extract dates, times, ranges and recurrence periods from reminder text, without 
 
 Type a phrase, review the extracted title and time, then add the reminder. A short recording of the Android Compose demo:
 
-![Typing Buy milk tomorrow at 7pm, reviewing Buy milk for tomorrow at 19:00, and confirming it in the reminder list](../assets/reminder-demo.gif)
+![Typing Buy milk tomorrow at 7pm, reviewing Buy milk for tomorrow at 19:00, and confirming it in the reminder list](../assets/reminder-demo-framed.gif)
 
 The demo keeps reminders for the current session; it does not send notifications.
 
@@ -192,7 +192,7 @@ Real screenshots on Android API 35:
 
 | Parsed reminder | Edited and saved | Ambiguous time: manual review |
 | --- | --- | --- |
-| ![Natural-language reminder parsed as Buy milk at 19:00](../assets/reminder-preview.png) | ![Confirmed reminder in the session-only list](../assets/reminder-saved.png) | ![Ambiguous time requires clarification before saving](../assets/reminder-needs-review.png) |
+| ![Natural-language reminder parsed as Buy milk at 19:00](../assets/reminder-preview-framed.png) | ![Confirmed reminder in the session-only list](../assets/reminder-saved-framed.png) | ![Ambiguous time requires clarification before saving](../assets/reminder-needs-review-framed.png) |
 
 For ambiguous wording such as `Remind me tomorow at 7`, `Buy milk tomorrow 7, please`, or an invalid bare hour such as `tomorrow at 25`, the library rejects the unresolved time instead of quietly scheduling at the reference hour. Supply `7am`, `7pm`, or `19:00`, or select a date and time manually in the demo. A date-only expression such as `tomorrow` still inherits the reference time by design. The preview is always for review; a rule score is not a probability.
 
