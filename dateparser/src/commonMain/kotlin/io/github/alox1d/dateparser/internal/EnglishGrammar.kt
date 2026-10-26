@@ -127,7 +127,12 @@ internal object EnglishGrammar {
                 first == second && first in 1..12 -> DateOrder.DMY
                 else -> null
             }
-            when (order) {
+            // An abbreviated year such as 26 must not silently become AD 26.
+            val explicitYear = if (order == DateOrder.YMD) m.groupValues[1] else third
+            if (explicitYear.isNotEmpty() && explicitYear.length != 4) {
+                rejected = true
+                REJECTED
+            } else when (order) {
                 DateOrder.DMY -> date(m.groupValues[1], second, third)
                 DateOrder.MDY -> date(m.groupValues[2], first, third)
                 DateOrder.YMD -> if (third.isEmpty()) { rejected = true; REJECTED } else date(third, second, m.groupValues[1])
