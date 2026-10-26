@@ -39,6 +39,18 @@ class EnglishGrammarTest {
         assertTrue(parse("03/04").isEmpty())
         assertEquals(LocalDate(2026,4,3), parse("03.04.2026",DateOrder.MDY).single().targetDate.date)
     }
+    @Test fun shortSlashYearsCannotSilentlyBecomeAncientDates() {
+        val parser = DateParser()
+        for (text in listOf("13/04/26", "04/13/26")) {
+            assertTrue(parser.parse(text, reference, TimeZone.UTC).isEmpty(), text)
+        }
+        assertTrue(parser.parse("13/04/26", DateOrder.DMY, reference, TimeZone.UTC).isEmpty())
+        assertTrue(parser.parse("04/13/26", DateOrder.MDY, reference, TimeZone.UTC).isEmpty())
+        assertTrue(parser.parse("26/04/13", DateOrder.YMD, reference, TimeZone.UTC).isEmpty())
+        assertEquals(LocalDate(2026, 4, 13), parser.parse("13/04/2026", reference, TimeZone.UTC).single().targetDate.date)
+        assertEquals(LocalDate(2026, 4, 13), parser.parse("2026/04/13", DateOrder.YMD, reference, TimeZone.UTC).single().targetDate.date)
+        assertEquals(LocalDate(2024, 4, 13), parser.parse("13/04", reference, TimeZone.UTC).single().targetDate.date)
+    }
     @Test fun invalidDateAndClockTokensNeverBecomePartialMatches() {
         for (text in listOf("February 30, 2026", "29 February 2025", "31 April", "February 29, 0000", "13pm", "0AM", "5:60PM", "12:10:60am", "2026-02-30", "31/04/2026", "03/04/2026 at 5pm", "tomorrow at 13pm", "tomorrow at 1:2:3:4pm", "March 12, 10000", "tomorrow at 999999999999999999999pm", "01/02/03/04", "2026-02-29")) {
             assertTrue(parse(text).isEmpty(), text)
