@@ -29,6 +29,12 @@ internal object EnglishGrammar {
     private val numericCandidate = Regex("$start[+-]?\\d+(?:[/:-]\\d+)+$end")
     private val amPmCandidate = Regex("$start[+-]?\\d+(?::\\d*)*\\s*[ap]\\.?m\\.?$end", ignoreCase)
     private val amPm = Regex("$start(\\d{1,3})(?::(\\d{1,3}))?(?::(\\d{1,3}))?\\s*([ap])\\.?m\\.?$end", ignoreCase)
+    // Validate explicit colon clocks next to recognized English date/time cues.
+    // The legacy 24:30 rollover remains supported.
+    private val clockAfterCue = Regex(
+        "\\b(?:at|today|tomorrow|tomorow|yesterday)\\s+(\\d{1,3}):(\\d{1,2})(?::(\\d{1,2}))?\\b",
+        ignoreCase
+    )
     private val nextPeriod = Regex("\\bnext\\s+(week|month|year)s?\\b", ignoreCase)
     private val dottedDate = Regex("$start(?<!\\d\\.)([+-]?\\d{1,2})\\.(\\d{2})\\.(\\d{1,4})(?!\\.\\d)$end")
     private val weekday = Regex("\\b(?:(on|next|every)\\s+)?(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\\b", ignoreCase)
@@ -51,6 +57,14 @@ internal object EnglishGrammar {
             ignoreCase
         )
         if (ambiguousAtHour.containsMatchIn(text) || trailingDateHour.containsMatchIn(text)) return REJECTED
+        // An invalid clock must not leave behind an otherwise valid date-only match.
+        for (clock in clockAfterCue.findAll(text)) {
+            val hour = clock.groupValues[1].toIntOrNull()
+            val minute = clock.groupValues[2].toIntOrNull()
+            val second = clock.groupValues[3].ifEmpty { "0" }.toIntOrNull()
+            if (hour == null || hour !in 0..24 || minute == null || minute !in 0..59 ||
+                second == null || second !in 0..59) return REJECTED
+        }
         val referenceYear = referenceDate.year
         var rejected = false
         fun date(dayText: String, month: Int, yearText: String = "", ordinal: String = "", namedWeekday: String = ""): String {
