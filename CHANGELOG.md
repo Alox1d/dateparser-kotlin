@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Reject out-of-range colon clocks next to English date/time cues (for example, `tomorrow at 25:00` and `tomorrow at 19:61`) rather than falling back to a partial date match. The existing `24:30` rollover and public API are unchanged. Other unsupported temporal qualifiers still require caller review; this is not yet in the published 0.1.3 artifact.
+
 ## 0.1.3
 
 - Reject unresolved bare hours in expressions such as `tomorrow at 7`, `Buy milk tomorrow 7`, `2026-10-18 at 7`, `tomorrow at 25`, and `tomorrow 7, please` instead of silently inheriting the reference clock; explicit `7pm` and `19:00` still work.
