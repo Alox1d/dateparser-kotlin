@@ -15,6 +15,8 @@ Extract dates, times, ranges and recurrence periods from reminder text, without 
 
 [Latest release](https://github.com/Alox1d/dateparser-kotlin/releases/latest) · [Release notes](CHANGELOG.md) · [Kotlin Multiplatform libraries catalog](https://klibs.io/project/Alox1d/dateparser-kotlin)
 
+Featured in [Kotlin Weekly #535](https://mailchi.mp/kotlinweekly/kotlin-weekly-535) (November 1, 2026): [offline KMP reminder walkthrough](https://alox1d.github.io/dateparser-kotlin/en/kmp-reminder-demo/).
+
 **`Buy milk tomorrow at 7pm` → `Buy milk` + tomorrow, 19:00 in your chosen timezone.**
 
 ## See it in action
