@@ -15,6 +15,8 @@
 
 [Последний релиз](https://github.com/Alox1d/dateparser-kotlin/releases/latest) · [Изменения](CHANGELOG.md) · [Каталог Kotlin Multiplatform](https://klibs.io/project/Alox1d/dateparser-kotlin)
 
+Статья о библиотеке вошла в [Kotlin Weekly #535](https://mailchi.mp/kotlinweekly/kotlin-weekly-535) от 1 ноября 2026: [практический пример напоминаний на KMP](https://alox1d.github.io/dateparser-kotlin/en/kmp-reminder-demo/) (EN).
+
 **`Купить молоко завтра в 19:00` → `Купить молоко` + завтра, 19:00 в выбранном часовом поясе.**
 
 ## Как это выглядит
