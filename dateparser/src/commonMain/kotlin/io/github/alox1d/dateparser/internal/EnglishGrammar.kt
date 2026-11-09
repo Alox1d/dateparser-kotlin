@@ -29,10 +29,10 @@ internal object EnglishGrammar {
     private val numericCandidate = Regex("$start[+-]?\\d+(?:[/:-]\\d+)+$end")
     private val amPmCandidate = Regex("$start[+-]?\\d+(?::\\d*)*\\s*[ap]\\.?m\\.?$end", ignoreCase)
     private val amPm = Regex("$start(\\d{1,3})(?::(\\d{1,3}))?(?::(\\d{1,3}))?\\s*([ap])\\.?m\\.?$end", ignoreCase)
-    // Validate explicit colon clocks next to recognized English date/time cues.
+    // Validate complete numeric colon clocks next to recognized English date/time cues.
     // The legacy 24:30 rollover remains supported.
     private val clockAfterCue = Regex(
-        "\\b(?:at|today|tomorrow|tomorow|yesterday)\\s+(\\d{1,3}):(\\d{1,2})(?::(\\d{1,2}))?\\b",
+        "\\b(?:at|today|tomorrow|tomorow|yesterday)\\s+(\\d+(?::\\d*)+)(?![\\p{L}\\d:])",
         ignoreCase
     )
     private val nextPeriod = Regex("\\bnext\\s+(week|month|year)s?\\b", ignoreCase)
@@ -58,12 +58,16 @@ internal object EnglishGrammar {
         )
         if (ambiguousAtHour.containsMatchIn(text) || trailingDateHour.containsMatchIn(text)) return REJECTED
         // An invalid clock must not leave behind an otherwise valid date-only match.
+        // Validate the whole token: a prefix like 19:30 from 19:30:15:0 is misleading.
         for (clock in clockAfterCue.findAll(text)) {
-            val hour = clock.groupValues[1].toIntOrNull()
-            val minute = clock.groupValues[2].toIntOrNull()
-            val second = clock.groupValues[3].ifEmpty { "0" }.toIntOrNull()
+            val parts = clock.groupValues[1].split(':')
+            if (parts.size !in 2..3 || parts[0].length > 3 || parts[1].length !in 1..2 ||
+                (parts.size == 3 && parts[2].length !in 1..2)) return REJECTED
+            val hour = parts[0].toIntOrNull()
+            val minute = parts[1].toIntOrNull()
+            val second = parts.getOrNull(2)?.toIntOrNull() ?: 0
             if (hour == null || hour !in 0..24 || minute == null || minute !in 0..59 ||
-                second == null || second !in 0..59) return REJECTED
+                second !in 0..59) return REJECTED
         }
         val referenceYear = referenceDate.year
         var rejected = false

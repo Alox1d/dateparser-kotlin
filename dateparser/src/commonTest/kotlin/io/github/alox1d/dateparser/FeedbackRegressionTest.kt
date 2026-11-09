@@ -58,6 +58,23 @@ class FeedbackRegressionTest {
         )
     }
 
+    @Test fun malformedColonClockTokensCannotProducePartialDateMatches() {
+        for (input in listOf(
+            "Buy milk tomorrow at 19:300",
+            "Buy milk tomorrow at 9999:30",
+            "Buy milk tomorrow at 19:30:15:0",
+            "Buy milk tomorrow at 19:30:",
+            "Buy milk tomorrow 19:30:15:0",
+            "Pay on 2026-10-18 at 19:300"
+        )) {
+            assertTrue(parser.parse(input, reference, TimeZone.UTC).isEmpty(), input)
+        }
+        for (input in listOf("Buy milk tomorrow at 19:30", "Buy milk tomorrow at 19:30:15",
+            "Buy milk tomorrow at 24:30")) {
+            assertEquals(1, parser.parse(input, reference, TimeZone.UTC).size, input)
+        }
+    }
+
     @Test fun invalidLeapDayCannotBecomeValidPartialMatch() {
         assertTrue(parser.parse("Pay on February 30, 2026 at 5pm", reference, TimeZone.UTC).isEmpty())
     }

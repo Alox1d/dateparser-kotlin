@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Reject malformed English numeric colon-clock tokens near a date cue (overlong fields, trailing colons or additional sections) instead of accepting a valid prefix and potentially returning a partial date match. Valid clocks and the existing `24:30` rollover are preserved. This is not yet in the published 0.1.3 artifact.
+
 - Reject out-of-range colon clocks next to English date/time cues (for example, `tomorrow at 25:00` and `tomorrow at 19:61`) rather than falling back to a partial date match. The existing `24:30` rollover and public API are unchanged. Other unsupported temporal qualifiers still require caller review; this is not yet in the published 0.1.3 artifact.
 
 ## 0.1.3
