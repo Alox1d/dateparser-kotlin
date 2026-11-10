@@ -29,7 +29,32 @@ Try your own input:
 
 Optional properties: `demoReference` (ISO instant), `demoTimeZone` (IANA zone), and `demoDateOrder` (`NONE`, `MDY`, `DMY`, or `YMD`; default `NONE`). Dates without a clock inherit the reference clock. The example does not automatically move past dates into the future.
 
-Verify the shared preview against the public artifacts:
+## Station-local calendar-date hints
+
+When evaluating a date hint for an already selected station or venue, pass its timezone and one captured reference instant. The same instant can fall on different calendar days on the device and at the station:
+
+```kotlin
+import io.github.alox1d.dateparser.DateParser
+import kotlin.time.Instant
+import kotlinx.datetime.TimeZone
+
+val reference = Instant.parse("2026-11-08T23:30:00Z")
+val stationZone = TimeZone.of("Europe/Berlin")
+val match = DateParser().parse("tomorrow", reference, stationZone).single()
+val stationDate = match.targetDate.date // 2026-11-10, Tuesday
+```
+
+At that reference it is Sunday in Los Angeles but Monday in Berlin. Parsing the same hint in `America/Los_Angeles` returns a local date of November 9 instead. Resolve/select the station first; the parser does not resolve station names.
+
+This example deliberately takes only `.date`: the full result still contains an inherited reference clock (`00:30` in Berlin) and an instant. There is no native date-only result or all-day flag. An event or prediction engine must use the selected calendar date to find its own event; the inherited instant is not the time of that event.
+
+The example parses the isolated hint `tomorrow`, not a complete alert sentence. It does not interpret a trigger such as `slack`, and `after 3pm` is not represented as a time constraint. An evaluation adapter must keep such input unsupported or handle the constraint explicitly rather than drop it. A successful date match alone does not make an alert valid.
+
+The common test `dateHintUsesTheStationCalendarWhenDeviceAndStationDaysDiffer` checks these values against the published artifact on each consumer test target.
+
+## Verify the consumer
+
+Run the shared preview tests against the public artifacts:
 
 ```sh
 ./gradlew -p integration/consumer jvmTest testAndroidHostTest -PcentralOnly=true
