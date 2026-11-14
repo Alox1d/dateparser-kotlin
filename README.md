@@ -35,7 +35,7 @@ Add `mavenCentral()` and the dependency to your shared module:
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("io.github.alox1d:dateparser-kotlin:0.1.3")
+            implementation("io.github.alox1d:dateparser-kotlin:0.1.4")
         }
     }
 }
@@ -64,7 +64,7 @@ The Russian phrase `купить через 5 часов` produces the same inst
 
 ## Runnable KMP demo
 
-[Try the shared reminder demo](integration/consumer/README.md) or follow the [English KMP walkthrough](https://alox1d.github.io/dateparser-kotlin/en/kmp-reminder-demo/). The example resolves **0.1.3 from Maven Central**, keeps the preview in `commonMain`, and checks JVM, Android and iOS consumers.
+[Try the shared reminder demo](integration/consumer/README.md) or follow the [English KMP walkthrough](https://alox1d.github.io/dateparser-kotlin/en/kmp-reminder-demo/). The example resolves **0.1.4 from Maven Central**, keeps the preview in `commonMain`, and checks JVM, Android and iOS consumers.
 
 ```sh
 ./gradlew -p integration/consumer runDemo -PcentralOnly=true --console=plain
@@ -79,7 +79,7 @@ For a **JVM-only project without Android SDK**, use the independent [JVM consume
 ./gradlew -p integration/jvm-consumer run --args='--help' --console=plain
 ```
 
-It needs only JDK 17-21 and resolves 0.1.3 from Maven Central. The fixed examples cover English/Russian, both range boundaries, timezones and explicit date order. A custom no-match returns a nonzero application status; malformed options produce an actionable error.
+It needs only JDK 17-21 and resolves 0.1.4 from Maven Central. The fixed examples cover English/Russian, both range boundaries, timezones and explicit date order. A custom no-match returns a nonzero application status; malformed options produce an actionable error.
 
 The [SwiftUI iOS host](integration/ios-app/README.md) adds input, editable title/start/end, explicit confirmation and a session list on top of the same shared Kotlin preview. Open `integration/ios-app/DateParserDemo.xcodeproj` on an Apple Silicon Mac with full Xcode. This source example builds its own local framework from the published Kotlin dependency; it does not add a separately distributed Swift package.
 

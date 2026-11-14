@@ -1,13 +1,13 @@
 ---
 title: Parse reminder dates in Kotlin Multiplatform - an offline KMP walkthrough
-description: Build a shared reminder preview with DateParser Kotlin 0.1.3 from Maven Central. Handle US and European date order, timezones and unsupported input.
+description: Build a shared reminder preview with DateParser Kotlin 0.1.4 from Maven Central. Handle US and European date order, timezones and unsupported input.
 ---
 
 # Parse reminder dates in shared Kotlin code
 
 A reminder field is more useful when it accepts `Buy milk, tomorrow from 5PM to 8PM`. The application still needs an editable title, an actual timestamp, and a clear way to ask for clarification. For a Kotlin Multiplatform app, this conversion can live in `commonMain`, while Android and iOS own the input form and confirmation screen.
 
-This walkthrough uses **DateParser Kotlin 0.1.3**, an MIT library that recognizes supported English and Russian date expressions offline. You will build a small reminder preview, run it on JVM, and use the same shared code on Android and iOS. The standalone consumers and SwiftUI host use the published Maven Central dependency, so they also check real consumer integration.
+This walkthrough uses **DateParser Kotlin 0.1.4**, an MIT library that recognizes supported English and Russian date expressions offline. You will build a small reminder preview, run it on JVM, and use the same shared code on Android and iOS. The standalone consumers and SwiftUI host use the published Maven Central dependency, so they also check real consumer integration.
 
 ## Run the example first
 
@@ -55,7 +55,7 @@ repositories {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("io.github.alox1d:dateparser-kotlin:0.1.3")
+            implementation("io.github.alox1d:dateparser-kotlin:0.1.4")
         }
     }
 }
@@ -149,7 +149,7 @@ Store the resolved instant and the timezone needed for display. In production, `
 
 ## Review the shared result in SwiftUI
 
-The repository includes an [iOS host with a checked-in Xcode project](https://github.com/Alox1d/dateparser-kotlin/blob/main/integration/ios-app/README.md). On an Apple Silicon Mac, open `integration/ios-app/DateParserDemo.xcodeproj`, choose the `DateParserDemo` scheme and an iPhone simulator, then run. Its build phase resolves DateParser Kotlin 0.1.3 from Maven Central and builds a local static framework from the shared consumer. No CocoaPods or project-generation step is needed.
+The repository includes an [iOS host with a checked-in Xcode project](https://github.com/Alox1d/dateparser-kotlin/blob/main/integration/ios-app/README.md). On an Apple Silicon Mac, open `integration/ios-app/DateParserDemo.xcodeproj`, choose the `DateParserDemo` scheme and an iPhone simulator, then run. Its build phase resolves DateParser Kotlin 0.1.4 from Maven Central and builds a local static framework from the shared consumer. No CocoaPods or project-generation step is needed.
 
 The application adapter exposes a small boundary to Swift:
 
@@ -209,4 +209,4 @@ Android host tests validate shared code on the JVM; they are not device instrume
 
 DateParser Kotlin is a small offline rule engine with tested forms. It is useful for a reminder input that has a confirmation step. It does not promise to understand arbitrary prose, provide source character spans, assign semantic roles to every date in an SMS, or implement a complete recurrence scheduler. Keep manual entry available and add representative phrases from your own users to your tests.
 
-See the [API guide](index.md), [Maven Central release](https://central.sonatype.com/artifact/io.github.alox1d/dateparser-kotlin/0.1.3), and [complete runnable example](https://github.com/Alox1d/dateparser-kotlin/tree/main/integration/consumer). If this helps your Kotlin project, feedback about real English inputs and integrations is welcome; a [GitHub star](https://github.com/Alox1d/dateparser-kotlin) also helps others discover the library.
+See the [API guide](index.md), [Maven Central release](https://central.sonatype.com/artifact/io.github.alox1d/dateparser-kotlin/0.1.4), and [complete runnable example](https://github.com/Alox1d/dateparser-kotlin/tree/main/integration/consumer). If this helps your Kotlin project, feedback about real English inputs and integrations is welcome; a [GitHub star](https://github.com/Alox1d/dateparser-kotlin) also helps others discover the library.
