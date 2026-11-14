@@ -2,9 +2,13 @@
 
 ## Unreleased
 
-- Reject malformed English numeric colon-clock tokens near a date cue (overlong fields, trailing colons or additional sections) instead of accepting a valid prefix and potentially returning a partial date match. Valid clocks and the existing `24:30` rollover are preserved. This is not yet in the published 0.1.3 artifact.
+## 0.1.4 - 2026-11-14
 
-- Reject out-of-range colon clocks next to English date/time cues (for example, `tomorrow at 25:00` and `tomorrow at 19:61`) rather than falling back to a partial date match. The existing `24:30` rollover and public API are unchanged. Other unsupported temporal qualifiers still require caller review; this is not yet in the published 0.1.3 artifact.
+- Reject abbreviated slash-date years such as `13/04/26` instead of interpreting them as AD 26. Four-digit years and supported dates without a year remain available; no century is guessed.
+- Reject out-of-range explicit English colon clocks such as `tomorrow at 25:00` and `tomorrow at 19:61` instead of falling back to a partial date match.
+- Validate complete cue-attached colon-clock tokens, including overlong fields, trailing colons and extra sections. Valid clocks and the existing `24:30` rollover remain supported.
+- Add shared regressions for these cases. Public API signatures and platform requirements are unchanged; unsupported temporal qualifiers still require caller review.
+- Expand the runnable examples with a standalone JVM consumer, a SwiftUI host and a reviewed Android calendar handoff, plus updated demo media and CI coverage.
 
 ## 0.1.3
 

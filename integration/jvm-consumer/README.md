@@ -1,6 +1,6 @@
 # JVM consumer of DateParser Kotlin
 
-A small Kotlin/JVM application that uses **`io.github.alox1d:dateparser-kotlin:0.1.3` from Maven Central**. It has its own Gradle settings and uses the Kotlin JVM and application plugins. It requires **JDK 17-21**, with no Android SDK, Xcode, or local library publication. The repository supplies Gradle 8.13 through its wrapper.
+A small Kotlin/JVM application that uses **`io.github.alox1d:dateparser-kotlin:0.1.4` from Maven Central**. It has its own Gradle settings and uses the Kotlin JVM and application plugins. It requires **JDK 17-21**, with no Android SDK, Xcode, or local library publication. The repository supplies Gradle 8.13 through its wrapper.
 
 ## Run the examples
 

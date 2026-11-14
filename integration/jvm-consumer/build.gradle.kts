@@ -6,7 +6,7 @@ plugins {
 }
 
 dependencies {
-    implementation("io.github.alox1d:dateparser-kotlin:0.1.3")
+    implementation("io.github.alox1d:dateparser-kotlin:0.1.4")
     testImplementation(kotlin("test-junit"))
 }
 

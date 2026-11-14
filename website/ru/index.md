@@ -40,7 +40,7 @@ description: Парсер дат и времени из текста для Kotl
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("io.github.alox1d:dateparser-kotlin:0.1.3")
+            implementation("io.github.alox1d:dateparser-kotlin:0.1.4")
         }
     }
 }
@@ -69,7 +69,7 @@ val instant = matches.single().instant // 2024-02-28T15:15:00Z
 
 ## Запускаемый пример KMP
 
-[Демо общего кода](https://github.com/Alox1d/dateparser-kotlin/blob/main/integration/consumer/README.md) и [практическая статья на английском](https://alox1d.github.io/dateparser-kotlin/en/kmp-reminder-demo/) используют опубликованную 0.1.3 из Maven Central. Код предпросмотра напоминания находится в `commonMain`; он проверяется на JVM, Android и iOS.
+[Демо общего кода](https://github.com/Alox1d/dateparser-kotlin/blob/main/integration/consumer/README.md) и [практическая статья на английском](https://alox1d.github.io/dateparser-kotlin/en/kmp-reminder-demo/) используют опубликованную 0.1.4 из Maven Central. Код предпросмотра напоминания находится в `commonMain`; он проверяется на JVM, Android и iOS.
 
 ```sh
 ./gradlew -p integration/consumer runDemo -PcentralOnly=true --console=plain
@@ -84,7 +84,7 @@ val instant = matches.single().instant // 2024-02-28T15:15:00Z
 ./gradlew -p integration/jvm-consumer run --args='--help' --console=plain
 ```
 
-Достаточно JDK 17-21. Пример получает 0.1.3 из Maven Central и показывает английские и русские фразы, обе границы диапазона, часовые пояса и явный порядок даты. Отсутствие совпадения для собственной фразы возвращает ненулевой код приложения; неверные параметры сопровождаются понятным сообщением.
+Достаточно JDK 17-21. Пример получает 0.1.4 из Maven Central и показывает английские и русские фразы, обе границы диапазона, часовые пояса и явный порядок даты. Отсутствие совпадения для собственной фразы возвращает ненулевой код приложения; неверные параметры сопровождаются понятным сообщением.
 
 [iOS-приложение на SwiftUI](https://github.com/Alox1d/dateparser-kotlin/blob/main/integration/ios-app/README.md) использует тот же Kotlin-код предпросмотра: ввод, редактирование названия и обеих границ, явное подтверждение, список на время работы приложения. На Mac с Apple Silicon и полным Xcode открой `integration/ios-app/DateParserDemo.xcodeproj`. Это пример с исходным кодом, который собирает локальный framework из опубликованной Kotlin-зависимости; отдельного распространяемого Swift-пакета он не добавляет.
 

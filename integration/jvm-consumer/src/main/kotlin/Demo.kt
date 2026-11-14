@@ -30,7 +30,7 @@ internal fun runDemo(args: Array<String>, out: Appendable, err: Appendable): Int
         return 2
     }
 
-    out.appendLine("DateParser Kotlin 0.1.3 | JVM consumer")
+    out.appendLine("DateParser Kotlin 0.1.4 | JVM consumer")
     val matched = showResult(input, out)
     out.appendLine(FOOTER)
     if (!matched) {
@@ -138,7 +138,7 @@ private fun runExamples(out: Appendable, err: Appendable): Int {
         Example(Input("every 2 days"))
     )
 
-    out.appendLine("DateParser Kotlin 0.1.3 | JVM consumer | fixed examples")
+    out.appendLine("DateParser Kotlin 0.1.4 | JVM consumer | fixed examples")
     var unexpectedResults = 0
     for (example in examples) {
         out.appendLine()
@@ -156,7 +156,7 @@ private fun runExamples(out: Appendable, err: Appendable): Int {
 }
 
 private val HELP = """
-    DateParser Kotlin 0.1.3 | JVM consumer
+    DateParser Kotlin 0.1.4 | JVM consumer
     Run without arguments for the fixed example suite, or:
       --text "Buy milk tomorrow at 7pm" [options]
 
