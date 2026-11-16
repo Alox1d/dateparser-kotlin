@@ -106,6 +106,8 @@ internal object EnglishGrammar {
             if (!amPm.matches(candidate.value)) return REJECTED
         }
         for (candidate in dottedDate.findAll(text)) {
+            // An abbreviated explicit year would otherwise be normalized to an ancient AD year.
+            if (candidate.groupValues[3].length != 4) return REJECTED
             date(candidate.groupValues[1], candidate.groupValues[2].toIntOrNull() ?: 0, candidate.groupValues[3])
         }
         for (candidate in compound.findAll(text)) {
