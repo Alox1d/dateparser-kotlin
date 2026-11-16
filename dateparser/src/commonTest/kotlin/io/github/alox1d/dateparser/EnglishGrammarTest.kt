@@ -51,6 +51,14 @@ class EnglishGrammarTest {
         assertEquals(LocalDate(2026, 4, 13), parser.parse("2026/04/13", DateOrder.YMD, reference, TimeZone.UTC).single().targetDate.date)
         assertEquals(LocalDate(2024, 4, 13), parser.parse("13/04", reference, TimeZone.UTC).single().targetDate.date)
     }
+    @Test fun shortDottedYearsCannotSilentlyBecomeAncientDates() {
+        val parser = DateParser()
+        for (text in listOf("15.11.26", "Pay on 15.11.26 at 5pm", "15.11.026", "15.11.2")) {
+            assertTrue(parser.parse(text, reference, TimeZone.UTC).isEmpty(), text)
+        }
+        assertEquals(LocalDate(2026,11,15), parser.parse("15.11.2026", reference, TimeZone.UTC).single().targetDate.date)
+        assertEquals(LocalDate(2026,11,15), parser.parse("Pay on 15.11.2026 at 5pm", reference, TimeZone.UTC).single().targetDate.date)
+    }
     @Test fun invalidDateAndClockTokensNeverBecomePartialMatches() {
         for (text in listOf("February 30, 2026", "29 February 2025", "31 April", "February 29, 0000", "13pm", "0AM", "5:60PM", "12:10:60am", "2026-02-30", "31/04/2026", "03/04/2026 at 5pm", "tomorrow at 13pm", "tomorrow at 1:2:3:4pm", "March 12, 10000", "tomorrow at 999999999999999999999pm", "01/02/03/04", "2026-02-29")) {
             assertTrue(parse(text).isEmpty(), text)
