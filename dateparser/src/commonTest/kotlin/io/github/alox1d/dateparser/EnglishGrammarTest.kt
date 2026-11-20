@@ -17,6 +17,54 @@ class EnglishGrammarTest {
         assertEquals(LocalDate(2024,2,29), parse("February 29").single().targetDate.date)
         assertEquals(LocalDate(2024,2,29), parse("29th Feb.").single().targetDate.date)
     }
+    @Test fun shortCommaSeparatedNamedYearsCannotBeIgnored() {
+        val parser = DateParser()
+        val unexpected = listOf(
+            "March 12, 26",
+            "12 March, 26",
+            "March 12, 6",
+            "12 March, 026",
+            "Meet on Mar. 12th,26 at 5pm",
+            "Meet on 12th Mar., 26 at 5pm",
+            "Tomorrow and March 12, 26 at 5pm",
+            "12th MAR.,026"
+        ).mapNotNull { text ->
+            val matches = parser.parse(text, reference, TimeZone.UTC)
+            if (matches.isEmpty()) null else "$text -> ${matches.map { it.targetDate }}"
+        }
+        assertEquals(emptyList(), unexpected)
+    }
+    @Test fun namedDatesKeepExplicitFourDigitAndOmittedYears() {
+        val parser = DateParser()
+        for (text in listOf("March 12, 2026", "12 March, 2026", "Mar. 12th,2026", "12th Mar., 2026")) {
+            assertEquals(LocalDateTime(2026,3,12,10,15,21), parser.parse(text, reference, TimeZone.UTC).single().targetDate, text)
+        }
+        for (text in listOf("March 12", "12 March")) {
+            assertEquals(LocalDateTime(2024,3,12,10,15,21), parser.parse(text, reference, TimeZone.UTC).single().targetDate, text)
+        }
+    }
+    @Test fun commaSeparatedClockSuffixIsNotAnAbbreviatedYear() {
+        val parser = DateParser()
+        for ((text, clock) in listOf(
+            "March 12, 5 pm" to LocalTime(17,0,0),
+            "12 March, 5 p.m." to LocalTime(17,0,0),
+            "March 12, 17:30" to LocalTime(17,30,21),
+            "12 March, 17.30" to LocalTime(17,30,21)
+        )) {
+            val matches = parser.parse(text, reference, TimeZone.UTC)
+            // A comma can separate engine expressions; preserve both recognized components.
+            assertTrue(matches.any { it.targetDate.date == LocalDate(2024,3,12) }, text)
+            assertTrue(matches.any { it.targetDate.time == clock }, text)
+        }
+    }
+    @Test fun separateNumericDateAfterCommaIsNotAnAbbreviatedYear() {
+        val parser = DateParser()
+        for (text in listOf("March 12, 13/04/2026", "March 12, 04/13/2026", "12 March, 13.04.2026")) {
+            val matches = parser.parse(text, reference, TimeZone.UTC)
+            assertTrue(matches.any { it.targetDate.date == LocalDate(2024,3,12) }, text)
+            assertTrue(matches.any { it.targetDate.date == LocalDate(2026,4,13) }, text)
+        }
+    }
     @Test fun attachedAndSpacedAmPmZeroMissingFields() {
         for (text in listOf("5pm", "5 PM", "5p.m.", "5 p.m.")) {
             assertEquals(LocalDateTime(2024,2,28,17,0,0), parse(text).single().targetDate, text)

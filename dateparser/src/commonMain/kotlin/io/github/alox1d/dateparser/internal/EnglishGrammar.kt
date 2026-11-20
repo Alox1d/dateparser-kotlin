@@ -24,6 +24,12 @@ internal object EnglishGrammar {
     private val namedPrefix = "(?:(?:on\\s+)?($weekdayNames)\\s*,?\\s*)?"
     private val monthFirst = Regex("$start$namedPrefix($months)\\.?\\s*([+-]?\\d+)(st|nd|rd|th)?(?:\\s*,?\\s*(\\d{4,}))?$end", ignoreCase)
     private val dayFirst = Regex("$start$namedPrefix([+-]?\\d+)(st|nd|rd|th)?\\s*($months)\\.?(?:\\s*,?\\s*(\\d{4,}))?$end", ignoreCase)
+    private val abbreviatedNamedYear = Regex(
+        "$start(?:(?:$months)\\.?\\s*[+-]?\\d+(?:st|nd|rd|th)?|" +
+            "[+-]?\\d+(?:st|nd|rd|th)?\\s*(?:$months)\\.?)\\s*,\\s*\\d{1,3}" +
+            "(?!\\s*(?:[/:-]|\\.\\d|[ap]\\.?m\\.?$end))$end",
+        ignoreCase
+    )
     private val slashDate = Regex("$start(\\d{1,6})/(\\d{1,3})(?:/(\\d{1,6}))?$end")
     private val isoDate = Regex("$start(\\d{4,})-(\\d{1,3})-(\\d{1,3})$end")
     private val numericCandidate = Regex("$start[+-]?\\d+(?:[/:-]\\d+)+$end")
@@ -47,6 +53,8 @@ internal object EnglishGrammar {
     private val conjunction = Regex("\\s+and\\s+", ignoreCase)
 
     fun normalize(text: String, dateOrder: DateOrder?, referenceDate: LocalDate = LocalDate(2000, 1, 1)): String {
+        // A comma-marked abbreviated year must not fall back to the reference year.
+        if (abbreviatedNamedYear.containsMatchIn(text)) return REJECTED
         // An unresolved bare hour must not silently inherit the reference clock.
         // Only explicit AM/PM or minutes disambiguate these otherwise partial matches.
         val ambiguousAtHour = Regex("\\bat\\s+\\d{1,3}\\b(?!\\s*(?:[:.]\\d|[ap]\\.?m\\.?))", ignoreCase)
