@@ -1,6 +1,6 @@
 # Published KMP reminder demo
 
-This standalone Kotlin Multiplatform consumer uses **DateParser Kotlin 0.1.3 from Maven Central**. Its reminder preview lives in `src/commonMain`; the same code compiles for JVM, Android API 26+, and iOS arm64/device and simulator. A small JVM entry point prints the results without requiring an emulator.
+This standalone Kotlin Multiplatform consumer uses **DateParser Kotlin 0.1.4 from Maven Central**. Its reminder preview lives in `src/commonMain`; the same code compiles for JVM, Android API 26+, and iOS arm64/device and simulator. A small JVM entry point prints the results without requiring an emulator.
 
 From the repository root:
 
@@ -10,7 +10,7 @@ From the repository root:
 
 Build prerequisites: JDK 17-21 and Android SDK 35. Full Xcode on macOS is needed only for the iOS checks. The repository's Gradle wrapper is used; no separate Gradle installation is necessary.
 
-For a terminal example that needs **no Android SDK**, use the separate [JVM-only consumer](../jvm-consumer/README.md): `./gradlew -p integration/jvm-consumer run`. It also resolves 0.1.3 from Maven Central.
+For a terminal example that needs **no Android SDK**, use the separate [JVM-only consumer](../jvm-consumer/README.md): `./gradlew -p integration/jvm-consumer run`. It also resolves 0.1.4 from Maven Central.
 
 For an interactive iOS form, open the [SwiftUI host](../ios-app/README.md). This shared module builds its `ReminderShared` framework locally; `ReminderPreviewParser` exposes primitive values to Swift and delegates to the same `parseReminderDraft` policy. The host requires an Apple Silicon Mac and full Xcode.
 

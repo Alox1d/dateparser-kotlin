@@ -27,7 +27,7 @@ kotlin {
         }
     }
     sourceSets {
-        commonMain.dependencies { implementation("io.github.alox1d:dateparser-kotlin:${providers.gradleProperty("parserVersion").getOrElse("0.1.3")}") }
+        commonMain.dependencies { implementation("io.github.alox1d:dateparser-kotlin:${providers.gradleProperty("parserVersion").getOrElse("0.1.4")}") }
         commonTest.dependencies { implementation(kotlin("test")) }
         getByName("androidHostTest").dependencies { implementation(kotlin("test-junit")) }
     }

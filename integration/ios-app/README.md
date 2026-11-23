@@ -1,6 +1,6 @@
 # SwiftUI host for the published KMP consumer
 
-An iOS reminder form calls the same `parseReminderDraft` policy used by the Android demo. The shared Kotlin module resolves **DateParser Kotlin 0.1.3 from Maven Central** and builds a local static `ReminderShared` framework for this app. This is a source example, not a separately published Swift package or XCFramework distribution.
+An iOS reminder form calls the same `parseReminderDraft` policy used by the Android demo. The shared Kotlin module resolves **DateParser Kotlin 0.1.4 from Maven Central** and builds a local static `ReminderShared` framework for this app. This is a source example, not a separately published Swift package or XCFramework distribution.
 
 ## Run
 
