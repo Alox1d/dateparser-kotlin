@@ -49,6 +49,23 @@ class PublishedParserTest {
         assertEquals(LocalDate(2026, 3, 4), parser.parse("03/04/2026", DateOrder.MDY, reference, TimeZone.UTC).single().targetDate.date)
         assertEquals(LocalDate(2026, 4, 3), parser.parse("03/04/2026", DateOrder.DMY, reference, TimeZone.UTC).single().targetDate.date)
     }
+    @Test fun dateHintUsesTheStationCalendarWhenDeviceAndStationDaysDiffer() {
+        val reference = Instant.parse("2026-11-08T23:30:00Z")
+        val deviceZone = TimeZone.of("America/Los_Angeles")
+        val stationZone = TimeZone.of("Europe/Berlin")
+        assertEquals(DayOfWeek.SUNDAY, reference.toLocalDateTime(deviceZone).dayOfWeek)
+        assertEquals(DayOfWeek.MONDAY, reference.toLocalDateTime(stationZone).dayOfWeek)
+
+        val stationMatch = parser.parse("tomorrow", reference, stationZone).single()
+        val deviceMatch = parser.parse("tomorrow", reference, deviceZone).single()
+        assertEquals(LocalDate(2026, 11, 10), stationMatch.targetDate.date)
+        assertEquals(LocalDate(2026, 11, 9), deviceMatch.targetDate.date)
+        assertEquals(LocalTime(0, 30), stationMatch.targetDate.time)
+        assertEquals(Instant.parse("2026-11-09T23:30:00Z"), stationMatch.instant)
+        assertNull(stationMatch.endInstant)
+        assertNull(stationMatch.recurrence)
+    }
+
     @Test fun tomorrowRangeAndReminder() {
         val match = parse("Buy milk, tomorrow from 17:30 to 20:00").single()
         assertEquals(LocalDateTime(2024, 2, 29, 17, 30), match.targetDate)
